@@ -1,0 +1,8 @@
+# Supabase Session Pooler URL, normally port 5432.
+DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres"
+WEB_ORIGIN="http://localhost:3000"
+ADMIN_KEY="replace-with-a-long-random-one-time-bootstrap-key"
+BETTER_AUTH_SECRET="replace-with-a-long-random-secret"
+BETTER_AUTH_URL="http://localhost:8787"
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
