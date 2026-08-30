@@ -1,0 +1,12 @@
+{
+  "name": "liza-arch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm --parallel --filter web --filter api run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

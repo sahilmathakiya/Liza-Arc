@@ -1,25 +1,27 @@
 {
   "name": "api",
-  "type": "module",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "deploy": "wrangler deploy",
     "db:generate": "prisma generate",
-    "db:migrate:dev": "prisma migrate dev",
-    "db:migrate:deploy": "prisma migrate deploy"
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.10.0",
+    "@neondatabase/serverless": "^1.1.0",
+    "@prisma/adapter-neon": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "better-auth": "^1.7.2",
     "hono": "^4.13.5"
   },
   "devDependencies": {
-    "@types/pg": "^8.15.5",
-    "dotenv": "^17.4.2",
-    "pg": "^8.16.3",
-    "prisma": "^7.10.0",
-    "wrangler": "^4.110.0"
+    "@cloudflare/workers-types": "^5.20260829.1",
+    "prisma": "7.10.0",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.127.1"
   }
 }
