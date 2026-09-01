@@ -12,9 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as MoatRouteImport } from './routes/moat'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as MoatIndexRouteImport } from './routes/moat/index'
+import { Route as MoatAdmin_signupRouteImport } from './routes/moat/admin_signup'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -27,6 +30,11 @@ const AuthRoute = AuthRouteImport.update({
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoatRoute = MoatRouteImport.update({
+  id: '/moat',
+  path: '/moat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
@@ -44,47 +52,76 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const MoatIndexRoute = MoatIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MoatRoute,
+} as any)
+const MoatAdmin_signupRoute = MoatAdmin_signupRouteImport.update({
+  id: '/admin_signup',
+  path: '/admin_signup',
+  getParentRoute: () => MoatRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/moat': typeof MoatRouteWithChildren
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/moat/admin_signup': typeof MoatAdmin_signupRoute
+  '/moat/': typeof MoatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/moat/admin_signup': typeof MoatAdmin_signupRoute
+  '/moat': typeof MoatIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/moat': typeof MoatRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/signup': typeof AuthSignupRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/moat/admin_signup': typeof MoatAdmin_signupRoute
+  '/moat/': typeof MoatIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup' | '/dashboard'
+  fullPaths:
+    | '/'
+    | '/moat'
+    | '/login'
+    | '/signup'
+    | '/dashboard'
+    | '/moat/admin_signup'
+    | '/moat/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/dashboard'
+  to: '/' | '/login' | '/signup' | '/dashboard' | '/moat/admin_signup' | '/moat'
   id:
     | '__root__'
     | '/'
     | '/_auth'
     | '/_authenticated'
+    | '/moat'
     | '/_auth/login'
     | '/_auth/signup'
     | '/_authenticated/dashboard'
+    | '/moat/admin_signup'
+    | '/moat/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  MoatRoute: typeof MoatRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -110,6 +147,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/moat': {
+      id: '/moat'
+      path: '/moat'
+      fullPath: '/moat'
+      preLoaderRoute: typeof MoatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_auth/login': {
       id: '/_auth/login'
       path: '/login'
@@ -130,6 +174,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/moat/': {
+      id: '/moat/'
+      path: '/'
+      fullPath: '/moat/'
+      preLoaderRoute: typeof MoatIndexRouteImport
+      parentRoute: typeof MoatRoute
+    }
+    '/moat/admin_signup': {
+      id: '/moat/admin_signup'
+      path: '/admin_signup'
+      fullPath: '/moat/admin_signup'
+      preLoaderRoute: typeof MoatAdmin_signupRouteImport
+      parentRoute: typeof MoatRoute
     }
   }
 }
@@ -158,10 +216,23 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface MoatRouteChildren {
+  MoatAdmin_signupRoute: typeof MoatAdmin_signupRoute
+  MoatIndexRoute: typeof MoatIndexRoute
+}
+
+const MoatRouteChildren: MoatRouteChildren = {
+  MoatAdmin_signupRoute: MoatAdmin_signupRoute,
+  MoatIndexRoute: MoatIndexRoute,
+}
+
+const MoatRouteWithChildren = MoatRoute._addFileChildren(MoatRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  MoatRoute: MoatRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

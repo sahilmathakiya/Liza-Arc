@@ -6,3 +6,8 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 BETTER_AUTH_URL = "http://localhost:8787"
 WEB_URL = "http://localhost:3000"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "liza-arch-test-bucket"
+preview_bucket_name = "testing-bucket"

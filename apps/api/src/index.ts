@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { createAuth } from "./auth";
+import { adminRouter } from "./routes/admin";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -18,6 +19,8 @@ app.use(
 app.get("/", (c) => c.json({ name: "api", status: "ok" }));
 
 app.on(["GET", "POST"], "/api/auth/*", (c) => createAuth(c.env).handler(c.req.raw));
+
+app.route("/api/admin", adminRouter);
 
 app.get("/api/me", async (c) => {
   const auth = createAuth(c.env);

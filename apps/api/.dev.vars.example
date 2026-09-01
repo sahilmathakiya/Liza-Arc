@@ -2,3 +2,4 @@ DATABASE_URL="postgresql://USER:PASSWORD@ep-xxx-pooler.region.aws.neon.tech/DB_N
 BETTER_AUTH_SECRET="generate-with: openssl rand -base64 32"
 GOOGLE_CLIENT_ID="xxx.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="xxx"
+ADMIN_KEY="a-long-random-secret-key"

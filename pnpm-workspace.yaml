@@ -3,5 +3,6 @@ packages:
 allowBuilds:
   '@prisma/engines': true
   esbuild: true
+  lightningcss: true
   prisma: true
   workerd: true

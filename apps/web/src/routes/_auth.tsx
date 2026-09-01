@@ -1,9 +1,9 @@
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
-import { authClient } from '#/lib/auth'
+import { getSessionSafe } from '#/lib/auth'
 
 export const Route = createFileRoute('/_auth')({
   beforeLoad: async () => {
-    const { data: session } = await authClient.getSession()
+    const session = await getSessionSafe()
     if (session) {
       throw redirect({ to: '/dashboard' })
     }

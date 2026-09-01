@@ -1,5 +1,5 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { authClient } from '#/lib/auth'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { authClient, isAdminRole } from '#/lib/auth'
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
   component: DashboardPage,
@@ -38,12 +38,22 @@ function DashboardPage() {
           </div>
         </div>
 
-        <button
-          onClick={handleSignOut}
-          className="mt-8 rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-100"
-        >
-          Sign out
-        </button>
+        <div className="mt-8 flex gap-3">
+          {isAdminRole(session.user.role) && (
+            <Link
+              to="/moat"
+              className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700"
+            >
+              Admin dashboard
+            </Link>
+          )}
+          <button
+            onClick={handleSignOut}
+            className="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-100"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
     </div>
   )
