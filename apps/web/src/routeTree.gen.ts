@@ -9,27 +9,52 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as StoreRouteImport } from './routes/_store'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as MoatRouteImport } from './routes/moat'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedPurchasesRouteImport } from './routes/_authenticated/purchases'
+import { Route as StoreIndexRouteImport } from './routes/_store/index'
+import { Route as StoreAboutRouteImport } from './routes/_store/about'
+import { Route as StoreContactRouteImport } from './routes/_store/contact'
+import { Route as StoreFloorPlansRouteImport } from './routes/_store/floor-plans'
+import { Route as StoreInteriorsRouteImport } from './routes/_store/interiors'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminCustomersRouteImport } from './routes/admin/customers'
+import { Route as AdminOrdersRouteImport } from './routes/admin/orders'
+import { Route as AdminProductsRouteImport } from './routes/admin/products'
+import { Route as AdminUploadRouteImport } from './routes/admin/upload'
 import { Route as MoatIndexRouteImport } from './routes/moat/index'
 import { Route as MoatAdmin_signupRouteImport } from './routes/moat/admin_signup'
+import { Route as AuthenticatedCheckoutOrderIdRouteImport } from './routes/_authenticated/checkout/$orderId'
+import { Route as StoreFloorPlansIndexRouteImport } from './routes/_store/floor-plans/index'
+import { Route as StoreFloorPlansSlugRouteImport } from './routes/_store/floor-plans/$slug'
+import { Route as StoreInteriorsIndexRouteImport } from './routes/_store/interiors/index'
+import { Route as StoreInteriorsSlugRouteImport } from './routes/_store/interiors/$slug'
+import { Route as AdminCustomersIndexRouteImport } from './routes/admin/customers/index'
+import { Route as AdminCustomersIdRouteImport } from './routes/admin/customers/$id'
+import { Route as AdminOrdersIndexRouteImport } from './routes/admin/orders/index'
+import { Route as AdminOrdersIdRouteImport } from './routes/admin/orders/$id'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoreRoute = StoreRouteImport.update({
+  id: '/_store',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MoatRoute = MoatRouteImport.update({
@@ -52,6 +77,61 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedPurchasesRoute = AuthenticatedPurchasesRouteImport.update({
+  id: '/purchases',
+  path: '/purchases',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const StoreIndexRoute = StoreIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StoreRoute,
+} as any)
+const StoreAboutRoute = StoreAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => StoreRoute,
+} as any)
+const StoreContactRoute = StoreContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => StoreRoute,
+} as any)
+const StoreFloorPlansRoute = StoreFloorPlansRouteImport.update({
+  id: '/floor-plans',
+  path: '/floor-plans',
+  getParentRoute: () => StoreRoute,
+} as any)
+const StoreInteriorsRoute = StoreInteriorsRouteImport.update({
+  id: '/interiors',
+  path: '/interiors',
+  getParentRoute: () => StoreRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCustomersRoute = AdminCustomersRouteImport.update({
+  id: '/customers',
+  path: '/customers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminOrdersRoute = AdminOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProductsRoute = AdminProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUploadRoute = AdminUploadRouteImport.update({
+  id: '/upload',
+  path: '/upload',
+  getParentRoute: () => AdminRoute,
+} as any)
 const MoatIndexRoute = MoatIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -62,77 +142,235 @@ const MoatAdmin_signupRoute = MoatAdmin_signupRouteImport.update({
   path: '/admin_signup',
   getParentRoute: () => MoatRoute,
 } as any)
+const AuthenticatedCheckoutOrderIdRoute =
+  AuthenticatedCheckoutOrderIdRouteImport.update({
+    id: '/checkout/$orderId',
+    path: '/checkout/$orderId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const StoreFloorPlansIndexRoute = StoreFloorPlansIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StoreFloorPlansRoute,
+} as any)
+const StoreFloorPlansSlugRoute = StoreFloorPlansSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => StoreFloorPlansRoute,
+} as any)
+const StoreInteriorsIndexRoute = StoreInteriorsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StoreInteriorsRoute,
+} as any)
+const StoreInteriorsSlugRoute = StoreInteriorsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => StoreInteriorsRoute,
+} as any)
+const AdminCustomersIndexRoute = AdminCustomersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminCustomersRoute,
+} as any)
+const AdminCustomersIdRoute = AdminCustomersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AdminCustomersRoute,
+} as any)
+const AdminOrdersIndexRoute = AdminOrdersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminOrdersRoute,
+} as any)
+const AdminOrdersIdRoute = AdminOrdersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AdminOrdersRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof StoreIndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/moat': typeof MoatRouteWithChildren
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/purchases': typeof AuthenticatedPurchasesRoute
+  '/about': typeof StoreAboutRoute
+  '/contact': typeof StoreContactRoute
+  '/floor-plans': typeof StoreFloorPlansRouteWithChildren
+  '/interiors': typeof StoreInteriorsRouteWithChildren
+  '/admin/customers': typeof AdminCustomersRouteWithChildren
+  '/admin/orders': typeof AdminOrdersRouteWithChildren
+  '/admin/products': typeof AdminProductsRoute
+  '/admin/upload': typeof AdminUploadRoute
   '/moat/admin_signup': typeof MoatAdmin_signupRoute
+  '/admin/': typeof AdminIndexRoute
   '/moat/': typeof MoatIndexRoute
+  '/checkout/$orderId': typeof AuthenticatedCheckoutOrderIdRoute
+  '/floor-plans/$slug': typeof StoreFloorPlansSlugRoute
+  '/interiors/$slug': typeof StoreInteriorsSlugRoute
+  '/admin/customers/$id': typeof AdminCustomersIdRoute
+  '/admin/orders/$id': typeof AdminOrdersIdRoute
+  '/floor-plans/': typeof StoreFloorPlansIndexRoute
+  '/interiors/': typeof StoreInteriorsIndexRoute
+  '/admin/customers/': typeof AdminCustomersIndexRoute
+  '/admin/orders/': typeof AdminOrdersIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof StoreIndexRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/purchases': typeof AuthenticatedPurchasesRoute
+  '/about': typeof StoreAboutRoute
+  '/contact': typeof StoreContactRoute
+  '/admin/products': typeof AdminProductsRoute
+  '/admin/upload': typeof AdminUploadRoute
   '/moat/admin_signup': typeof MoatAdmin_signupRoute
+  '/admin': typeof AdminIndexRoute
   '/moat': typeof MoatIndexRoute
+  '/checkout/$orderId': typeof AuthenticatedCheckoutOrderIdRoute
+  '/floor-plans/$slug': typeof StoreFloorPlansSlugRoute
+  '/interiors/$slug': typeof StoreInteriorsSlugRoute
+  '/admin/customers/$id': typeof AdminCustomersIdRoute
+  '/admin/orders/$id': typeof AdminOrdersIdRoute
+  '/floor-plans': typeof StoreFloorPlansIndexRoute
+  '/interiors': typeof StoreInteriorsIndexRoute
+  '/admin/customers': typeof AdminCustomersIndexRoute
+  '/admin/orders': typeof AdminOrdersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_store': typeof StoreRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
   '/moat': typeof MoatRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/signup': typeof AuthSignupRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/purchases': typeof AuthenticatedPurchasesRoute
+  '/_store/about': typeof StoreAboutRoute
+  '/_store/contact': typeof StoreContactRoute
+  '/_store/floor-plans': typeof StoreFloorPlansRouteWithChildren
+  '/_store/interiors': typeof StoreInteriorsRouteWithChildren
+  '/admin/customers': typeof AdminCustomersRouteWithChildren
+  '/admin/orders': typeof AdminOrdersRouteWithChildren
+  '/admin/products': typeof AdminProductsRoute
+  '/admin/upload': typeof AdminUploadRoute
   '/moat/admin_signup': typeof MoatAdmin_signupRoute
+  '/_store/': typeof StoreIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/moat/': typeof MoatIndexRoute
+  '/_authenticated/checkout/$orderId': typeof AuthenticatedCheckoutOrderIdRoute
+  '/_store/floor-plans/$slug': typeof StoreFloorPlansSlugRoute
+  '/_store/interiors/$slug': typeof StoreInteriorsSlugRoute
+  '/admin/customers/$id': typeof AdminCustomersIdRoute
+  '/admin/orders/$id': typeof AdminOrdersIdRoute
+  '/_store/floor-plans/': typeof StoreFloorPlansIndexRoute
+  '/_store/interiors/': typeof StoreInteriorsIndexRoute
+  '/admin/customers/': typeof AdminCustomersIndexRoute
+  '/admin/orders/': typeof AdminOrdersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/moat'
     | '/login'
     | '/signup'
     | '/dashboard'
+    | '/purchases'
+    | '/about'
+    | '/contact'
+    | '/floor-plans'
+    | '/interiors'
+    | '/admin/customers'
+    | '/admin/orders'
+    | '/admin/products'
+    | '/admin/upload'
     | '/moat/admin_signup'
+    | '/admin/'
     | '/moat/'
+    | '/checkout/$orderId'
+    | '/floor-plans/$slug'
+    | '/interiors/$slug'
+    | '/admin/customers/$id'
+    | '/admin/orders/$id'
+    | '/floor-plans/'
+    | '/interiors/'
+    | '/admin/customers/'
+    | '/admin/orders/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/dashboard' | '/moat/admin_signup' | '/moat'
+  to:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/dashboard'
+    | '/purchases'
+    | '/about'
+    | '/contact'
+    | '/admin/products'
+    | '/admin/upload'
+    | '/moat/admin_signup'
+    | '/admin'
+    | '/moat'
+    | '/checkout/$orderId'
+    | '/floor-plans/$slug'
+    | '/interiors/$slug'
+    | '/admin/customers/$id'
+    | '/admin/orders/$id'
+    | '/floor-plans'
+    | '/interiors'
+    | '/admin/customers'
+    | '/admin/orders'
   id:
     | '__root__'
-    | '/'
     | '/_auth'
     | '/_authenticated'
+    | '/_store'
+    | '/admin'
     | '/moat'
     | '/_auth/login'
     | '/_auth/signup'
     | '/_authenticated/dashboard'
+    | '/_authenticated/purchases'
+    | '/_store/about'
+    | '/_store/contact'
+    | '/_store/floor-plans'
+    | '/_store/interiors'
+    | '/admin/customers'
+    | '/admin/orders'
+    | '/admin/products'
+    | '/admin/upload'
     | '/moat/admin_signup'
+    | '/_store/'
+    | '/admin/'
     | '/moat/'
+    | '/_authenticated/checkout/$orderId'
+    | '/_store/floor-plans/$slug'
+    | '/_store/interiors/$slug'
+    | '/admin/customers/$id'
+    | '/admin/orders/$id'
+    | '/_store/floor-plans/'
+    | '/_store/interiors/'
+    | '/admin/customers/'
+    | '/admin/orders/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  StoreRoute: typeof StoreRouteWithChildren
+  AdminRoute: typeof AdminRouteWithChildren
   MoatRoute: typeof MoatRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_auth': {
       id: '/_auth'
       path: ''
@@ -145,6 +383,20 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_store': {
+      id: '/_store'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof StoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/moat': {
@@ -175,6 +427,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/purchases': {
+      id: '/_authenticated/purchases'
+      path: '/purchases'
+      fullPath: '/purchases'
+      preLoaderRoute: typeof AuthenticatedPurchasesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_store/': {
+      id: '/_store/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof StoreIndexRouteImport
+      parentRoute: typeof StoreRoute
+    }
+    '/_store/about': {
+      id: '/_store/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof StoreAboutRouteImport
+      parentRoute: typeof StoreRoute
+    }
+    '/_store/contact': {
+      id: '/_store/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof StoreContactRouteImport
+      parentRoute: typeof StoreRoute
+    }
+    '/_store/floor-plans': {
+      id: '/_store/floor-plans'
+      path: '/floor-plans'
+      fullPath: '/floor-plans'
+      preLoaderRoute: typeof StoreFloorPlansRouteImport
+      parentRoute: typeof StoreRoute
+    }
+    '/_store/interiors': {
+      id: '/_store/interiors'
+      path: '/interiors'
+      fullPath: '/interiors'
+      preLoaderRoute: typeof StoreInteriorsRouteImport
+      parentRoute: typeof StoreRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/customers': {
+      id: '/admin/customers'
+      path: '/customers'
+      fullPath: '/admin/customers'
+      preLoaderRoute: typeof AdminCustomersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/orders': {
+      id: '/admin/orders'
+      path: '/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AdminOrdersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/products': {
+      id: '/admin/products'
+      path: '/products'
+      fullPath: '/admin/products'
+      preLoaderRoute: typeof AdminProductsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/upload': {
+      id: '/admin/upload'
+      path: '/upload'
+      fullPath: '/admin/upload'
+      preLoaderRoute: typeof AdminUploadRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/moat/': {
       id: '/moat/'
       path: '/'
@@ -188,6 +517,69 @@ declare module '@tanstack/react-router' {
       fullPath: '/moat/admin_signup'
       preLoaderRoute: typeof MoatAdmin_signupRouteImport
       parentRoute: typeof MoatRoute
+    }
+    '/_authenticated/checkout/$orderId': {
+      id: '/_authenticated/checkout/$orderId'
+      path: '/checkout/$orderId'
+      fullPath: '/checkout/$orderId'
+      preLoaderRoute: typeof AuthenticatedCheckoutOrderIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_store/floor-plans/': {
+      id: '/_store/floor-plans/'
+      path: '/'
+      fullPath: '/floor-plans/'
+      preLoaderRoute: typeof StoreFloorPlansIndexRouteImport
+      parentRoute: typeof StoreFloorPlansRoute
+    }
+    '/_store/floor-plans/$slug': {
+      id: '/_store/floor-plans/$slug'
+      path: '/$slug'
+      fullPath: '/floor-plans/$slug'
+      preLoaderRoute: typeof StoreFloorPlansSlugRouteImport
+      parentRoute: typeof StoreFloorPlansRoute
+    }
+    '/_store/interiors/': {
+      id: '/_store/interiors/'
+      path: '/'
+      fullPath: '/interiors/'
+      preLoaderRoute: typeof StoreInteriorsIndexRouteImport
+      parentRoute: typeof StoreInteriorsRoute
+    }
+    '/_store/interiors/$slug': {
+      id: '/_store/interiors/$slug'
+      path: '/$slug'
+      fullPath: '/interiors/$slug'
+      preLoaderRoute: typeof StoreInteriorsSlugRouteImport
+      parentRoute: typeof StoreInteriorsRoute
+    }
+    '/admin/customers/': {
+      id: '/admin/customers/'
+      path: '/'
+      fullPath: '/admin/customers/'
+      preLoaderRoute: typeof AdminCustomersIndexRouteImport
+      parentRoute: typeof AdminCustomersRoute
+    }
+    '/admin/customers/$id': {
+      id: '/admin/customers/$id'
+      path: '/$id'
+      fullPath: '/admin/customers/$id'
+      preLoaderRoute: typeof AdminCustomersIdRouteImport
+      parentRoute: typeof AdminCustomersRoute
+    }
+    '/admin/orders/': {
+      id: '/admin/orders/'
+      path: '/'
+      fullPath: '/admin/orders/'
+      preLoaderRoute: typeof AdminOrdersIndexRouteImport
+      parentRoute: typeof AdminOrdersRoute
+    }
+    '/admin/orders/$id': {
+      id: '/admin/orders/$id'
+      path: '/$id'
+      fullPath: '/admin/orders/$id'
+      preLoaderRoute: typeof AdminOrdersIdRouteImport
+      parentRoute: typeof AdminOrdersRoute
     }
   }
 }
@@ -206,15 +598,111 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedPurchasesRoute: typeof AuthenticatedPurchasesRoute
+  AuthenticatedCheckoutOrderIdRoute: typeof AuthenticatedCheckoutOrderIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedPurchasesRoute: AuthenticatedPurchasesRoute,
+  AuthenticatedCheckoutOrderIdRoute: AuthenticatedCheckoutOrderIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
+
+interface StoreFloorPlansRouteChildren {
+  StoreFloorPlansSlugRoute: typeof StoreFloorPlansSlugRoute
+  StoreFloorPlansIndexRoute: typeof StoreFloorPlansIndexRoute
+}
+
+const StoreFloorPlansRouteChildren: StoreFloorPlansRouteChildren = {
+  StoreFloorPlansSlugRoute: StoreFloorPlansSlugRoute,
+  StoreFloorPlansIndexRoute: StoreFloorPlansIndexRoute,
+}
+
+const StoreFloorPlansRouteWithChildren = StoreFloorPlansRoute._addFileChildren(
+  StoreFloorPlansRouteChildren,
+)
+
+interface StoreInteriorsRouteChildren {
+  StoreInteriorsSlugRoute: typeof StoreInteriorsSlugRoute
+  StoreInteriorsIndexRoute: typeof StoreInteriorsIndexRoute
+}
+
+const StoreInteriorsRouteChildren: StoreInteriorsRouteChildren = {
+  StoreInteriorsSlugRoute: StoreInteriorsSlugRoute,
+  StoreInteriorsIndexRoute: StoreInteriorsIndexRoute,
+}
+
+const StoreInteriorsRouteWithChildren = StoreInteriorsRoute._addFileChildren(
+  StoreInteriorsRouteChildren,
+)
+
+interface StoreRouteChildren {
+  StoreAboutRoute: typeof StoreAboutRoute
+  StoreContactRoute: typeof StoreContactRoute
+  StoreFloorPlansRoute: typeof StoreFloorPlansRouteWithChildren
+  StoreInteriorsRoute: typeof StoreInteriorsRouteWithChildren
+  StoreIndexRoute: typeof StoreIndexRoute
+}
+
+const StoreRouteChildren: StoreRouteChildren = {
+  StoreAboutRoute: StoreAboutRoute,
+  StoreContactRoute: StoreContactRoute,
+  StoreFloorPlansRoute: StoreFloorPlansRouteWithChildren,
+  StoreInteriorsRoute: StoreInteriorsRouteWithChildren,
+  StoreIndexRoute: StoreIndexRoute,
+}
+
+const StoreRouteWithChildren = StoreRoute._addFileChildren(StoreRouteChildren)
+
+interface AdminCustomersRouteChildren {
+  AdminCustomersIdRoute: typeof AdminCustomersIdRoute
+  AdminCustomersIndexRoute: typeof AdminCustomersIndexRoute
+}
+
+const AdminCustomersRouteChildren: AdminCustomersRouteChildren = {
+  AdminCustomersIdRoute: AdminCustomersIdRoute,
+  AdminCustomersIndexRoute: AdminCustomersIndexRoute,
+}
+
+const AdminCustomersRouteWithChildren = AdminCustomersRoute._addFileChildren(
+  AdminCustomersRouteChildren,
+)
+
+interface AdminOrdersRouteChildren {
+  AdminOrdersIdRoute: typeof AdminOrdersIdRoute
+  AdminOrdersIndexRoute: typeof AdminOrdersIndexRoute
+}
+
+const AdminOrdersRouteChildren: AdminOrdersRouteChildren = {
+  AdminOrdersIdRoute: AdminOrdersIdRoute,
+  AdminOrdersIndexRoute: AdminOrdersIndexRoute,
+}
+
+const AdminOrdersRouteWithChildren = AdminOrdersRoute._addFileChildren(
+  AdminOrdersRouteChildren,
+)
+
+interface AdminRouteChildren {
+  AdminCustomersRoute: typeof AdminCustomersRouteWithChildren
+  AdminOrdersRoute: typeof AdminOrdersRouteWithChildren
+  AdminProductsRoute: typeof AdminProductsRoute
+  AdminUploadRoute: typeof AdminUploadRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminCustomersRoute: AdminCustomersRouteWithChildren,
+  AdminOrdersRoute: AdminOrdersRouteWithChildren,
+  AdminProductsRoute: AdminProductsRoute,
+  AdminUploadRoute: AdminUploadRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface MoatRouteChildren {
   MoatAdmin_signupRoute: typeof MoatAdmin_signupRoute
@@ -229,9 +717,10 @@ const MoatRouteChildren: MoatRouteChildren = {
 const MoatRouteWithChildren = MoatRoute._addFileChildren(MoatRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  StoreRoute: StoreRouteWithChildren,
+  AdminRoute: AdminRouteWithChildren,
   MoatRoute: MoatRouteWithChildren,
 }
 export const routeTree = rootRouteImport

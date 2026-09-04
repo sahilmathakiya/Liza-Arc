@@ -2,6 +2,7 @@ import { useState, useTransition } from 'react'
 import type { FormEvent } from 'react'
 import { FormError } from '#/components/auth/form-error'
 import { FormField } from '#/components/auth/form-field'
+import { Button } from '#/components/ui/button'
 import { apiFetch } from '#/lib/api'
 
 export function CreateAdminForm({ onCreated }: { onCreated: () => void }) {
@@ -32,9 +33,9 @@ export function CreateAdminForm({ onCreated }: { onCreated: () => void }) {
   }
 
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-neutral-900">Create admin</h2>
-      <p className="mt-1 text-sm text-neutral-500">
+    <div className="rounded-lg border border-line bg-surface p-6">
+      <h2 className="text-base font-semibold text-ink">Create admin</h2>
+      <p className="mt-1 text-sm text-ink-soft">
         Admins can view the dashboard but cannot create other admins.
       </p>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
@@ -67,13 +68,9 @@ export function CreateAdminForm({ onCreated }: { onCreated: () => void }) {
           placeholder="At least 8 characters"
         />
         <FormError message={error} />
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <Button type="submit" disabled={pending}>
           {pending ? 'Creating…' : 'Create admin'}
-        </button>
+        </Button>
       </form>
     </div>
   )

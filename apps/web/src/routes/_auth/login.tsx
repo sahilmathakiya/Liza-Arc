@@ -9,6 +9,7 @@ import { authClient } from '#/lib/auth'
 import { sanitizeRedirect } from '#/lib/redirect'
 
 export const Route = createFileRoute('/_auth/login')({
+  head: () => ({ meta: [{ title: 'Sign in — liza-arch' }] }),
   validateSearch: (search): { redirect?: string } => ({
     redirect: sanitizeRedirect(search.redirect),
   }),
@@ -23,7 +24,7 @@ function LoginPage() {
         email: formData.get('email') as string,
         password: formData.get('password') as string,
       }),
-    redirect ?? '/dashboard',
+    redirect ?? '/',
   )
 
   return (
@@ -33,7 +34,7 @@ function LoginPage() {
       footer={
         <>
           Don&apos;t have an account?{' '}
-          <Link to="/signup" className="font-medium text-neutral-900 hover:underline">
+          <Link to="/signup" className="font-medium text-ink hover:underline">
             Sign up
           </Link>
         </>

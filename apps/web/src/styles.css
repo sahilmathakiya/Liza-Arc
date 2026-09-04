@@ -1,5 +1,38 @@
-
 @import "tailwindcss";
+
+/*
+  Brand tokens.
+  When a client color theme arrives, change ONLY the values in :root.
+  All components consume semantic tokens (bg-brand, text-ink, border-line, ...),
+  never hardcoded brand colors.
+*/
+:root {
+  --brand: #171717;
+  --brand-foreground: #fafafa;
+  --accent: #171717;
+  --canvas: #fafafa;
+  --surface: #ffffff;
+  --surface-muted: #f5f5f5;
+  --line: #e5e5e5;
+  --line-strong: #d4d4d4;
+  --ink: #171717;
+  --ink-soft: #525252;
+  --ink-faint: #a3a3a3;
+}
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-accent: var(--accent);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+}
 
 * {
   box-sizing: border-box;
@@ -13,5 +46,21 @@ body,
 
 body {
   margin: 0;
+  background-color: var(--canvas);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
 }
 
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

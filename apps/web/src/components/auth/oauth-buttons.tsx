@@ -3,15 +3,15 @@ import { signInWithGoogle } from '#/lib/auth'
 export function OAuthButtons() {
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-3 text-xs uppercase tracking-wide text-neutral-400">
-        <span className="h-px flex-1 bg-neutral-200" />
+      <div className="flex items-center gap-3 text-xs uppercase tracking-wide text-ink-faint">
+        <span className="h-px flex-1 bg-line" />
         or
-        <span className="h-px flex-1 bg-neutral-200" />
+        <span className="h-px flex-1 bg-line" />
       </div>
       <button
         type="button"
         onClick={() => signInWithGoogle()}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+        className="flex w-full items-center justify-center gap-2 rounded-md border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink transition hover:bg-surface-muted"
       >
         <GoogleIcon />
         Continue with Google

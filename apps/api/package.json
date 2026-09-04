@@ -5,6 +5,7 @@
   "scripts": {
     "postinstall": "prisma generate",
     "dev": "wrangler dev",
+    "dev:remote": "wrangler dev --remote",
     "deploy": "wrangler deploy",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
@@ -16,7 +17,8 @@
     "@prisma/adapter-neon": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "better-auth": "^1.7.2",
-    "hono": "^4.13.5"
+    "hono": "^4.13.5",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260829.1",

@@ -32,3 +32,5 @@ export function createAuth(env: Env) {
 }
 
 export type Auth = ReturnType<typeof createAuth>;
+
+export type Session = NonNullable<Awaited<ReturnType<Auth["api"]["getSession"]>>>;

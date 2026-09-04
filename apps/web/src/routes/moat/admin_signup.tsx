@@ -7,6 +7,7 @@ import { useAuthForm } from '#/hooks/use-auth-form'
 import { apiFetch } from '#/lib/api'
 
 export const Route = createFileRoute('/moat/admin_signup')({
+  head: () => ({ meta: [{ title: 'Admin signup — liza-arch' }] }),
   beforeLoad: async () => {
     try {
       const { open } = await apiFetch<{ open: boolean }>('/api/admin/signup-open')
@@ -39,7 +40,7 @@ function AdminSignupPage() {
   }, '/login')
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-canvas p-4">
       <div className="w-full max-w-sm">
         <AuthCard
           title="Admin signup"

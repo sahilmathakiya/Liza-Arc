@@ -6,7 +6,7 @@ type AuthResult = { error: { message?: string } | null }
 
 export function useAuthForm(
   submit: (formData: FormData) => Promise<AuthResult>,
-  redirectTo = '/dashboard',
+  redirectTo = '/',
 ) {
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)

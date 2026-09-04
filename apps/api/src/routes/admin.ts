@@ -104,6 +104,33 @@ adminRouter.post("/create", async (c) => {
   return c.json({ ok: true });
 });
 
+adminRouter.get("/stats", async (c) => {
+  const session = await getSession(c);
+  if (!session) return c.json({ error: "Unauthorized" }, 401);
+  if (!isAdminRole(session.user.role)) return c.json({ error: "Forbidden" }, 403);
+
+  const prisma = createPrisma(c.env.DATABASE_URL);
+  const [productCount, publishedCount, orderCount, pendingOrders, paidRevenue, customerCount, entitlementCount] =
+    await Promise.all([
+      prisma.product.count(),
+      prisma.product.count({ where: { published: true } }),
+      prisma.order.count(),
+      prisma.order.count({ where: { status: "PENDING" } }),
+      prisma.order.aggregate({ where: { status: "PAID" }, _sum: { totalCents: true } }),
+      prisma.user.count({ where: { role: ROLE.user } }),
+      prisma.entitlement.count(),
+    ]);
+  return c.json({
+    productCount,
+    publishedCount,
+    orderCount,
+    pendingOrders,
+    revenueCents: paidRevenue._sum.totalCents ?? 0,
+    customerCount,
+    entitlementCount,
+  });
+});
+
 adminRouter.get("/list", async (c) => {
   const session = await getSession(c);
   if (!session) return c.json({ error: "Unauthorized" }, 401);

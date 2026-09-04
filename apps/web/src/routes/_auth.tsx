@@ -5,7 +5,7 @@ export const Route = createFileRoute('/_auth')({
   beforeLoad: async () => {
     const session = await getSessionSafe()
     if (session) {
-      throw redirect({ to: '/dashboard' })
+      throw redirect({ to: '/' })
     }
   },
   component: AuthLayout,
@@ -13,7 +13,7 @@ export const Route = createFileRoute('/_auth')({
 
 function AuthLayout() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-canvas p-4">
       <div className="w-full max-w-sm">
         <Outlet />
       </div>

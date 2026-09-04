@@ -8,6 +8,7 @@ import { useAuthForm } from '#/hooks/use-auth-form'
 import { authClient } from '#/lib/auth'
 
 export const Route = createFileRoute('/_auth/signup')({
+  head: () => ({ meta: [{ title: 'Sign up — liza-arch' }] }),
   component: SignupPage,
 })
 
@@ -31,7 +32,7 @@ function SignupPage() {
       footer={
         <>
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-neutral-900 hover:underline">
+          <Link to="/login" className="font-medium text-ink hover:underline">
             Sign in
           </Link>
         </>

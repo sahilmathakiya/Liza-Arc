@@ -35,7 +35,7 @@ export async function getSessionSafe(): Promise<AppSession | null> {
 export function signInWithGoogle() {
   return authClient.signIn.social({
     provider: 'google',
-    callbackURL: `${window.location.origin}/dashboard`,
+    callbackURL: `${window.location.origin}/`,
     errorCallbackURL: `${window.location.origin}/login`,
   })
 }

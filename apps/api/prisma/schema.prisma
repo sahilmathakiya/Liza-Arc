@@ -9,16 +9,18 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  email         String        @unique
+  emailVerified Boolean       @default(false)
   image         String?
-  role          String    @default("user")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          String        @default("user")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   sessions      Session[]
   accounts      Account[]
+  orders        Order[]
+  entitlements  Entitlement[]
 
   @@map("user")
 }
@@ -67,4 +69,132 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@map("verification")
+}
+
+enum ProductType {
+  FLOOR_PLAN
+  INTERIOR_PLAN
+}
+
+enum EntitlementType {
+  FLOOR_PLAN
+  ELEVATION_IMAGE
+  WORKING_DRAWING
+}
+
+enum InteriorCategory {
+  KITCHEN
+  HALL
+  LIVING_ROOM
+  BEDROOM
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  name        String
+  description String?
+  type        ProductType
+  published   Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  floorPlan    FloorPlan?
+  interiorPlan InteriorPlan?
+  orderItems   OrderItem[]
+  entitlements Entitlement[]
+
+  @@index([type, published])
+  @@map("product")
+}
+
+model FloorPlan {
+  id          String  @id @default(cuid())
+  productId   String  @unique
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  lengthFt      Int
+  widthFt       Int
+  floorAreaSqFt Int
+  bathrooms     Int
+  bedrooms      Int
+  floors        Int
+
+  floorPlanPriceCents Int
+  elevationPriceCents Int
+  bundlePriceCents    Int?
+
+  floorPlanKey String?
+  elevationKey String?
+
+  @@map("floor_plan")
+}
+
+model InteriorPlan {
+  id                     String           @id @default(cuid())
+  productId              String           @unique
+  product                Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category               InteriorCategory
+  workingDrawingPriceCents Int
+
+  previewKey        String?
+  workingDrawingKey String?
+
+  @@map("interior_plan")
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  status        OrderStatus @default(PENDING)
+  subtotalCents Int
+  totalCents    Int
+  currency      String      @default("INR")
+  paymentRef    String?     @unique
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  items OrderItem[]
+
+  @@index([userId])
+  @@map("order")
+}
+
+model OrderItem {
+  id              String          @id @default(cuid())
+  orderId         String
+  order           Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product         @relation(fields: [productId], references: [id])
+  entitlementType EntitlementType
+  priceCents      Int
+  createdAt       DateTime        @default(now())
+
+  entitlement Entitlement?
+
+  @@index([productId])
+  @@map("order_item")
+}
+
+model Entitlement {
+  id          String          @id @default(cuid())
+  type        EntitlementType
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product         @relation(fields: [productId], references: [id])
+  orderItemId String?         @unique
+  orderItem   OrderItem?      @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@unique([userId, productId, type])
+  @@map("entitlement")
 }
