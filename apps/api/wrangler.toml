@@ -4,7 +4,7 @@ compatibility_date = "2026-08-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-BETTER_AUTH_URL = "https://api.PLACEHOLDER.workers.dev"
+BETTER_AUTH_URL = "https://api.lizaarch.workers.dev"
 WEB_URL = "https://liza-arch-web.pages.dev"
 
 [[r2_buckets]]
