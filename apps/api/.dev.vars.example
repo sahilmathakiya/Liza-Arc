@@ -1,5 +1,7 @@
 DATABASE_URL="postgresql://USER:PASSWORD@ep-xxx-pooler.region.aws.neon.tech/DB_NAME?sslmode=require"
 BETTER_AUTH_SECRET="generate-with: openssl rand -base64 32"
+BETTER_AUTH_URL="http://localhost:8787"
+WEB_URL="http://localhost:3000"
 GOOGLE_CLIENT_ID="xxx.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="xxx"
 ADMIN_KEY="a-long-random-secret-key"

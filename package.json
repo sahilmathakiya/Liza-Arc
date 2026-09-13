@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "packageManager": "pnpm@11.24.0",
   "scripts": {
     "dev": "pnpm --parallel --filter web --filter api run dev"
   },

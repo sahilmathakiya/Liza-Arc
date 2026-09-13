@@ -4,11 +4,17 @@ import { createPrisma } from "./db";
 
 export function createAuth(env: Env) {
   const prisma = createPrisma(env.DATABASE_URL);
+  const crossSiteCookies = env.BETTER_AUTH_URL.startsWith("https://");
 
   return betterAuth({
     baseURL: env.BETTER_AUTH_URL,
     secret: env.BETTER_AUTH_SECRET,
     trustedOrigins: [env.BETTER_AUTH_URL, env.WEB_URL],
+    advanced: {
+      defaultCookieAttributes: crossSiteCookies
+        ? { sameSite: "none", secure: true }
+        : undefined,
+    },
     database: prismaAdapter(prisma, { provider: "postgresql" }),
     user: {
       additionalFields: {

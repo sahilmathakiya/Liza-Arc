@@ -12,10 +12,21 @@ import { publicProductsRouter } from "./routes/products";
 
 const app = new Hono<{ Bindings: Env }>();
 
+function isAllowedOrigin(origin: string, webUrl: string): boolean {
+  if (origin === "http://localhost:3000") return true;
+  try {
+    const webHost = new URL(webUrl).hostname;
+    const originHost = new URL(origin).hostname;
+    return originHost === webHost || originHost.endsWith(`.${webHost}`);
+  } catch {
+    return false;
+  }
+}
+
 app.use(
   "*",
   cors({
-    origin: (origin) => origin,
+    origin: (origin, c) => (isAllowedOrigin(origin, c.env.WEB_URL) ? origin : null),
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     exposeHeaders: ["Set-Cookie"],

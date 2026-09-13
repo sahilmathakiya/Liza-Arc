@@ -4,10 +4,10 @@ compatibility_date = "2026-08-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-BETTER_AUTH_URL = "http://localhost:8787"
-WEB_URL = "http://localhost:3000"
+BETTER_AUTH_URL = "https://api.PLACEHOLDER.workers.dev"
+WEB_URL = "https://liza-arch-web.pages.dev"
 
 [[r2_buckets]]
 binding = "BUCKET"
-bucket_name = "liza-arch-test-bucket"
+bucket_name = "liza-arch-storage"
 preview_bucket_name = "testing-bucket"
