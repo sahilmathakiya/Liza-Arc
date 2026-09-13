@@ -158,6 +158,8 @@ export async function deleteProduct(prisma: Prisma, id: string) {
   if (!product) return { ok: false as const, error: "not-found" as const };
   const owners = await prisma.entitlement.count({ where: { productId: id } });
   if (owners > 0) return { ok: false as const, error: "owned" as const };
+  const orderItems = await prisma.orderItem.count({ where: { productId: id } });
+  if (orderItems > 0) return { ok: false as const, error: "ordered" as const };
   await prisma.product.delete({ where: { id } });
   return { ok: true as const, keys: collectAssetKeys(product) };
 }

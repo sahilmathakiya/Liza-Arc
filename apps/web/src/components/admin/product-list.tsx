@@ -5,7 +5,14 @@ import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { EmptyState } from '#/components/ui/feedback'
 import type { Product } from '#/lib/products'
-import { INTERIOR_CATEGORY_LABELS, deleteProduct, formatPrice, updateProduct } from '#/lib/products'
+import {
+  INTERIOR_CATEGORY_LABELS,
+  deleteProduct,
+  formatPrice,
+  interiorPreviewUrl,
+  paidAssetUrl,
+  updateProduct,
+} from '#/lib/products'
 
 function hasMissingAssets(product: Product): boolean {
   if (product.type === 'FLOOR_PLAN' && product.floorPlan) {
@@ -17,20 +24,32 @@ function hasMissingAssets(product: Product): boolean {
   return true
 }
 
-function AssetDots({ items }: { items: { label: string; present: boolean }[] }) {
+function AssetDots({ items }: { items: { label: string; present: boolean; href?: string }[] }) {
   return (
     <div className="flex flex-wrap gap-1.5">
-      {items.map((item) => (
-        <span
-          key={item.label}
-          title={item.present ? `${item.label} uploaded` : `${item.label} missing`}
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-            item.present ? 'bg-surface-muted text-ink' : 'border border-line text-ink-faint'
-          }`}
-        >
-          {item.label}
-        </span>
-      ))}
+      {items.map((item) =>
+        item.present && item.href ? (
+          <a
+            key={item.label}
+            href={item.href}
+            download
+            title={`Download ${item.label.toLowerCase()}`}
+            className="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-medium text-ink underline-offset-2 transition hover:underline"
+          >
+            {item.label} ↓
+          </a>
+        ) : (
+          <span
+            key={item.label}
+            title={item.present ? `${item.label} uploaded` : `${item.label} missing`}
+            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+              item.present ? 'bg-surface-muted text-ink' : 'border border-line text-ink-faint'
+            }`}
+          >
+            {item.label}
+          </span>
+        ),
+      )}
     </div>
   )
 }
@@ -142,15 +161,33 @@ export function ProductList({ products }: { products: Product[] }) {
                     {floorPlan ? (
                       <AssetDots
                         items={[
-                          { label: 'Plan', present: Boolean(floorPlan.floorPlanKey) },
-                          { label: 'Elevation', present: Boolean(floorPlan.elevationKey) },
+                          {
+                            label: 'Plan',
+                            present: Boolean(floorPlan.floorPlanKey),
+                            href: floorPlan.floorPlanKey ? paidAssetUrl(product.id, 'floor-plan') : undefined,
+                          },
+                          {
+                            label: 'Elevation',
+                            present: Boolean(floorPlan.elevationKey),
+                            href: floorPlan.elevationKey ? paidAssetUrl(product.id, 'elevation') : undefined,
+                          },
                         ]}
                       />
                     ) : interiorPlan ? (
                       <AssetDots
                         items={[
-                          { label: 'Preview', present: Boolean(interiorPlan.previewKey) },
-                          { label: 'Drawing', present: Boolean(interiorPlan.workingDrawingKey) },
+                          {
+                            label: 'Preview',
+                            present: Boolean(interiorPlan.previewKey),
+                            href: interiorPlan.previewKey ? interiorPreviewUrl(product.id) : undefined,
+                          },
+                          {
+                            label: 'Drawing',
+                            present: Boolean(interiorPlan.workingDrawingKey),
+                            href: interiorPlan.workingDrawingKey
+                              ? paidAssetUrl(product.id, 'working-drawing')
+                              : undefined,
+                          },
                         ]}
                       />
                     ) : null}

@@ -107,7 +107,10 @@ adminProductsRouter.delete("/:id", async (c) => {
   const result = await deleteProduct(prisma, c.req.param("id"));
   if (!result.ok) {
     if (result.error === "not-found") return c.json({ error: "Product not found" }, 404);
-    return c.json({ error: "Product has existing buyers; unpublish it instead" }, 409);
+    if (result.error === "owned") {
+      return c.json({ error: "Product has existing buyers; unpublish it instead" }, 409);
+    }
+    return c.json({ error: "Product appears in existing orders; unpublish it instead" }, 409);
   }
   await deleteAssets(c.env.BUCKET, result.keys);
   return c.json({ ok: true });
