@@ -1,5 +1,8 @@
 packages:
   - "apps/*"
+# nitro#4533: rolldown <1.2.7 emits broken ssr_exports chunks in TanStack Start prod builds
+overrides:
+  rolldown: ~1.2.8
 allowBuilds:
   '@prisma/engines': true
   esbuild: true
