@@ -130,8 +130,9 @@ model FloorPlan {
   elevationPriceCents Int
   bundlePriceCents    Int?
 
-  floorPlanKey String?
-  elevationKey String?
+  floorPlanKey     String?
+  elevationKey     String?
+  elevationThumbKey String?
 
   @@map("floor_plan")
 }
@@ -192,9 +193,10 @@ model Entitlement {
   product     Product         @relation(fields: [productId], references: [id])
   orderItemId String?         @unique
   orderItem   OrderItem?      @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime?
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
-  @@unique([userId, productId, type])
+  @@index([userId, productId, type])
   @@map("entitlement")
 }

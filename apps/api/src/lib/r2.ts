@@ -36,6 +36,10 @@ export function assetKey(productId: string, kind: AssetKind, ext: string): strin
   return `${ASSET_DIRS[kind]}/${productId}/${kind}${ext}`;
 }
 
+export function elevationThumbKey(productId: string): string {
+  return `${ASSET_DIRS.elevation}/${productId}/elevation-thumb.jpg`;
+}
+
 export function contentTypeFor(ext: string): string {
   return CONTENT_TYPES[ext.toLowerCase()] ?? "application/octet-stream";
 }
@@ -50,7 +54,7 @@ export function resolveUploadExtension(filename: string, kind: AssetKind): strin
 export async function putAsset(
   bucket: R2Bucket,
   key: string,
-  body: ReadableStream | ArrayBuffer | Blob,
+  body: ReadableStream | ArrayBuffer | ArrayBufferView | Blob,
   contentType: string,
 ): Promise<string> {
   await bucket.put(key, body, { httpMetadata: { contentType } });
@@ -67,16 +71,24 @@ export async function deleteAssets(bucket: R2Bucket, keys: (string | null | unde
   await bucket.delete(existing);
 }
 
-export function assetResponseHeaders(object: R2Object, options?: { filename?: string }): Record<string, string> {
-  const headers: Record<string, string> = {
-    "content-type": object.httpMetadata?.contentType ?? "application/octet-stream",
-    "content-length": String(object.size),
-    etag: object.etag,
-    "cache-control": "private, max-age=3600",
+export function sanitizeFilename(filename: string): string {
+  return filename.replace(/[^\w.\- ]+/g, "_");
+}
+
+/**
+ * Headers for a personalized (watermarked) download. The response is
+ * user-specific and must never be stored by a shared/CDN cache.
+ */
+export function downloadResponseHeaders(options: {
+  contentType: string;
+  size: number;
+  filename: string;
+}): Record<string, string> {
+  return {
+    "content-type": options.contentType,
+    "content-length": String(options.size),
+    "content-disposition": `attachment; filename="${sanitizeFilename(options.filename)}"`,
+    "cache-control": "private, no-store",
+    "x-content-type-options": "nosniff",
   };
-  if (options?.filename) {
-    const safe = options.filename.replace(/[^\w.\- ]+/g, "_");
-    headers["content-disposition"] = `attachment; filename="${safe}"`;
-  }
-  return headers;
 }

@@ -1,5 +1,6 @@
 import type { Prisma } from "../db";
-import type { EntitlementType, OrderStatus } from "../schema/enums";
+import { activeEntitlementWhere, entitlementExpiresAt } from "../lib/entitlements";
+import type { EntitlementType, OrderStatus, ProductType } from "../schema/enums";
 import { isValidEntitlementForProduct } from "../schema/enums";
 import type { CheckoutInput } from "../schema/order";
 
@@ -15,8 +16,38 @@ export const ENTITLEMENT_DOWNLOAD_KIND: Record<
 const PRODUCT_REF_SELECT = { id: true, slug: true, name: true, type: true } as const;
 
 const ORDER_INCLUDE = {
-  items: { include: { product: { select: PRODUCT_REF_SELECT } } },
+  items: {
+    include: {
+      product: { select: PRODUCT_REF_SELECT },
+      entitlement: { select: { expiresAt: true } },
+    },
+  },
 } as const;
+
+interface OrderItemRecord {
+  id: string;
+  entitlementType: EntitlementType;
+  priceCents: number;
+  product: { id: string; slug: string; name: string; type: ProductType };
+  entitlement: { expiresAt: Date | null } | null;
+}
+
+/**
+ * Flattens the grant expiry onto each order item so receipts can tell an
+ * expired download from an active one.
+ */
+export function withAccessExpiry<T extends { items: OrderItemRecord[] }>(order: T) {
+  return {
+    ...order,
+    items: order.items.map((item) => ({
+      id: item.id,
+      entitlementType: item.entitlementType,
+      priceCents: item.priceCents,
+      product: item.product,
+      accessExpiresAt: item.entitlement?.expiresAt ?? null,
+    })),
+  };
+}
 
 export type CheckoutFailure = { ok: false; error: string; status: 400 | 404 | 409 };
 
@@ -64,7 +95,7 @@ export async function priceCart(
   const byId = new Map(products.map((product) => [product.id, product]));
 
   const ownedRows = await prisma.entitlement.findMany({
-    where: { userId, productId: { in: productIds } },
+    where: { userId, productId: { in: productIds }, ...activeEntitlementWhere() },
     select: { productId: true, type: true },
   });
   const owned = new Set(ownedRows.map((row) => `${row.productId}:${row.type}`));
@@ -153,6 +184,7 @@ export async function confirmPurchase(prisma: Prisma, orderId: string, paymentRe
               userId: order.userId,
               productId: item.productId,
               orderItemId: item.id,
+              expiresAt: entitlementExpiresAt(),
             },
           });
         }
@@ -229,7 +261,12 @@ export function getAdminOrder(prisma: Prisma, orderId: string) {
     where: { id: orderId },
     include: {
       user: { select: { id: true, name: true, email: true } },
-      items: { include: { product: { select: PRODUCT_REF_SELECT } } },
+      items: {
+        include: {
+          product: { select: PRODUCT_REF_SELECT },
+          entitlement: { select: { expiresAt: true } },
+        },
+      },
     },
   });
 }

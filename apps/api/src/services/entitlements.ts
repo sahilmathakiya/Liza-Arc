@@ -1,4 +1,5 @@
 import type { Prisma } from "../db";
+import { activeEntitlementWhere, entitlementExpiresAt } from "../lib/entitlements";
 import type { EntitlementType } from "../schema/enums";
 import { isValidEntitlementForProduct } from "../schema/enums";
 import type { CheckoutFailure } from "./orders";
@@ -9,7 +10,7 @@ export async function getOwnedTypes(
   productId: string,
 ): Promise<EntitlementType[]> {
   const rows = await prisma.entitlement.findMany({
-    where: { userId, productId },
+    where: { userId, productId, ...activeEntitlementWhere() },
     select: { type: true },
   });
   return rows.map((row) => row.type);
@@ -21,7 +22,9 @@ export async function hasEntitlement(
   productId: string,
   type: EntitlementType,
 ): Promise<boolean> {
-  const count = await prisma.entitlement.count({ where: { userId, productId, type } });
+  const count = await prisma.entitlement.count({
+    where: { userId, productId, type, ...activeEntitlementWhere() },
+  });
   return count > 0;
 }
 
@@ -44,11 +47,13 @@ export async function grantEntitlement(
   if (!isValidEntitlementForProduct(product.type, type)) {
     return { ok: false, error: "Invalid entitlement type for this product", status: 400 };
   }
-  const existing = await prisma.entitlement.findUnique({
-    where: { userId_productId_type: { userId, productId, type } },
+  const existing = await prisma.entitlement.findFirst({
+    where: { userId, productId, type, ...activeEntitlementWhere() },
   });
   if (existing) return { ok: false, error: "User already owns this item", status: 409 };
-  const entitlement = await prisma.entitlement.create({ data: { userId, productId, type } });
+  const entitlement = await prisma.entitlement.create({
+    data: { userId, productId, type, expiresAt: entitlementExpiresAt() },
+  });
   return { ok: true, entitlement };
 }
 

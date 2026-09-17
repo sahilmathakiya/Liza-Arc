@@ -3,7 +3,7 @@ import { BuyBox } from '#/components/store/buy-box'
 import { Container } from '#/components/ui/layout'
 import type { AppSession } from '#/lib/auth'
 import { getSessionSafe } from '#/lib/auth'
-import { getProductBySlug } from '#/lib/products'
+import { floorPlanThumbnailUrl, getProductBySlug } from '#/lib/products'
 
 export const Route = createFileRoute('/_store/floor-plans/$slug')({
   head: () => ({
@@ -53,13 +53,23 @@ function FloorPlanDetailPage() {
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2">
         <div className="space-y-6">
-          <div className="flex h-72 items-center justify-center rounded-lg border border-line bg-surface-muted">
-            <div className="text-center">
-              <p className="text-3xl font-semibold tracking-tight text-ink">
-                {floorPlan.widthFt} × {floorPlan.lengthFt} ft
-              </p>
-              <p className="mt-2 text-sm text-ink-soft">{floorPlan.floorAreaSqFt} sqft plot</p>
-            </div>
+          <div className="overflow-hidden rounded-lg border border-line bg-surface-muted">
+            {floorPlan.hasThumbnail ? (
+              <img
+                src={floorPlanThumbnailUrl(product.id)}
+                alt={`Elevation preview of ${product.name}`}
+                className="max-h-[28rem] w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-72 items-center justify-center">
+                <div className="text-center">
+                  <p className="text-3xl font-semibold tracking-tight text-ink">
+                    {floorPlan.widthFt} × {floorPlan.lengthFt} ft
+                  </p>
+                  <p className="mt-2 text-sm text-ink-soft">{floorPlan.floorAreaSqFt} sqft plot</p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="rounded-lg border border-line bg-surface p-6">

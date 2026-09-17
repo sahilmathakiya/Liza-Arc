@@ -142,12 +142,29 @@ export async function setAssetKey(
   throw new Error(`Asset kind "${kind}" does not match product type "${product.type}"`);
 }
 
+export async function setElevationThumbKey(
+  prisma: Prisma,
+  product: ProductWithDetails,
+  key: string,
+): Promise<string | null> {
+  if (product.type !== "FLOOR_PLAN" || !product.floorPlan) {
+    throw new Error("Elevation thumbnails only apply to floor plan products");
+  }
+  const old = product.floorPlan.elevationThumbKey;
+  await prisma.floorPlan.update({
+    where: { productId: product.id },
+    data: { elevationThumbKey: key },
+  });
+  return old;
+}
+
 export function collectAssetKeys(product: ProductWithDetails): string[] {
   const floorPlan = product.floorPlan;
   const interiorPlan = product.interiorPlan;
   return [
     floorPlan?.floorPlanKey,
     floorPlan?.elevationKey,
+    floorPlan?.elevationThumbKey,
     interiorPlan?.previewKey,
     interiorPlan?.workingDrawingKey,
   ].filter((key): key is string => Boolean(key));
@@ -222,6 +239,7 @@ export async function listPublicFloorPlans(prisma: Prisma, query: FloorPlanListQ
         bundlePriceCents: floorPlan.bundlePriceCents,
         hasFloorPlan: Boolean(floorPlan.floorPlanKey),
         hasElevation: Boolean(floorPlan.elevationKey),
+        hasThumbnail: Boolean(floorPlan.elevationThumbKey),
       },
     ];
   });
@@ -277,14 +295,30 @@ export async function getPublicProductBySlug(prisma: Prisma, slug: string, userI
 
   const floorPlan = product.floorPlan;
   const interiorPlan = product.interiorPlan;
-  const owned = userId
-    ? (
-        await prisma.entitlement.findMany({
-          where: { userId, productId: product.id },
-          select: { type: true },
-        })
-      ).map((row) => row.type)
-    : [];
+
+  const owned: EntitlementType[] = [];
+  const accessExpiries: { type: EntitlementType; expiresAt: Date | null }[] = [];
+  const expiredTypes: EntitlementType[] = [];
+
+  if (userId) {
+    const grants = await prisma.entitlement.findMany({
+      where: { userId, productId: product.id },
+      select: { type: true, expiresAt: true },
+      orderBy: { createdAt: "desc" },
+    });
+    const now = Date.now();
+    for (const grant of grants) {
+      const active = grant.expiresAt === null || grant.expiresAt.getTime() > now;
+      if (active) {
+        if (!owned.includes(grant.type)) {
+          owned.push(grant.type);
+          accessExpiries.push({ type: grant.type, expiresAt: grant.expiresAt });
+        }
+      } else if (!owned.includes(grant.type) && !expiredTypes.includes(grant.type)) {
+        expiredTypes.push(grant.type);
+      }
+    }
+  }
 
   return {
     id: product.id,
@@ -294,6 +328,8 @@ export async function getPublicProductBySlug(prisma: Prisma, slug: string, userI
     type: product.type,
     createdAt: product.createdAt,
     owned,
+    accessExpiries,
+    expiredTypes,
     floorPlan: floorPlan
       ? {
           lengthFt: floorPlan.lengthFt,
@@ -307,6 +343,7 @@ export async function getPublicProductBySlug(prisma: Prisma, slug: string, userI
           bundlePriceCents: floorPlan.bundlePriceCents,
           hasFloorPlan: Boolean(floorPlan.floorPlanKey),
           hasElevation: Boolean(floorPlan.elevationKey),
+          hasThumbnail: Boolean(floorPlan.elevationThumbKey),
         }
       : null,
     interiorPlan: interiorPlan
@@ -326,7 +363,7 @@ export async function getDeliverableAsset(
   prisma: Prisma,
   productId: string,
   kind: PaidAssetKind,
-): Promise<{ key: string; filename: string; entitlement: EntitlementType } | null> {
+): Promise<{ key: string; filename: string; entitlement: EntitlementType; slug: string } | null> {
   const product = await getProduct(prisma, productId);
   if (!product) return null;
 
@@ -345,5 +382,5 @@ export async function getDeliverableAsset(
   if (!key) return null;
 
   const ext = key.includes(".") ? key.slice(key.lastIndexOf(".")) : "";
-  return { key, entitlement, filename: `${product.slug}-${kind}${ext}` };
+  return { key, entitlement, filename: `${product.slug}-${kind}${ext}`, slug: product.slug };
 }

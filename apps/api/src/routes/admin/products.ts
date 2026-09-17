@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { Context } from "hono";
 import type { Session } from "../../auth";
 import { createAuth } from "../../auth";
 import { createPrisma, isPrismaError } from "../../db";
@@ -9,10 +10,12 @@ import {
   assetKey,
   contentTypeFor,
   deleteAssets,
+  elevationThumbKey,
   putAsset,
   resolveUploadExtension,
   type AssetKind,
 } from "../../lib/r2";
+import { detectFileKind } from "../../lib/file-type";
 import { zodErrorMessage } from "../../lib/zod";
 import { isAdminRole } from "../../roles";
 import { PRODUCT_TYPES } from "../../schema/enums";
@@ -27,9 +30,12 @@ import {
   getProduct,
   listAdminProducts,
   setAssetKey,
+  setElevationThumbKey,
   updateFloorPlanProduct,
   updateInteriorPlanProduct,
 } from "../../services/products";
+import type { ProductWithDetails } from "../../services/products";
+import { ThumbnailError, createBlurredThumbnail } from "../../services/thumbnail";
 import { z } from "zod";
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -145,6 +151,21 @@ adminProductsRouter.post("/:id/assets", async (c) => {
   }
 
   const key = assetKey(product.id, assetKind, ext);
+
+  if (assetKind === "elevation") {
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      await putAsset(c.env.BUCKET, key, bytes, contentTypeFor(ext));
+      const oldKey = await setAssetKey(prisma, product, assetKind, key);
+      if (oldKey && oldKey !== key) await deleteAssets(c.env.BUCKET, [oldKey]);
+
+      const thumbnailKey = await generateElevationThumbnail(c, prisma, product, bytes);
+      return c.json({ key, thumbnailKey });
+    } catch {
+      return c.json({ error: "Failed to store the file" }, 500);
+    }
+  }
+
   try {
     await putAsset(c.env.BUCKET, key, file.stream(), contentTypeFor(ext));
     const oldKey = await setAssetKey(prisma, product, assetKind, key);
@@ -153,4 +174,67 @@ adminProductsRouter.post("/:id/assets", async (c) => {
   } catch {
     return c.json({ error: "Failed to store the file" }, 500);
   }
+});
+
+/**
+ * Generates and stores the blurred storefront thumbnail for an elevation image.
+ * A failure here is non-fatal: the original upload stays valid and the admin
+ * can retry with the regenerate endpoint.
+ */
+async function generateElevationThumbnail(
+  c: Context<{ Bindings: Env; Variables: { session: Session } }>,
+  prisma: ReturnType<typeof createPrisma>,
+  product: ProductWithDetails,
+  source: Uint8Array,
+): Promise<string | null> {
+  try {
+    const thumbnail = createBlurredThumbnail(source, detectFileKind(source));
+    const thumbKey = elevationThumbKey(product.id);
+    await putAsset(c.env.BUCKET, thumbKey, thumbnail.bytes, thumbnail.contentType);
+    const oldThumb = await setElevationThumbKey(prisma, product, thumbKey);
+    if (oldThumb && oldThumb !== thumbKey) await deleteAssets(c.env.BUCKET, [oldThumb]);
+    return thumbKey;
+  } catch (error) {
+    console.error("Failed to generate elevation thumbnail", {
+      productId: product.id,
+      message: error instanceof Error ? error.message : "unknown error",
+    });
+    return null;
+  }
+}
+
+adminProductsRouter.post("/:id/thumbnail", async (c) => {
+  const prisma = createPrisma(c.env.DATABASE_URL);
+  const product = await getProduct(prisma, c.req.param("id"));
+  if (!product) return c.json({ error: "Product not found" }, 404);
+  if (product.type !== "FLOOR_PLAN" || !product.floorPlan) {
+    return c.json({ error: "Thumbnails only apply to floor plan products" }, 400);
+  }
+
+  const key = product.floorPlan.elevationKey;
+  if (!key) return c.json({ error: "Upload an elevation image first" }, 400);
+
+  const object = await c.env.BUCKET.get(key);
+  if (!object) return c.json({ error: "Elevation asset not found" }, 404);
+
+  const source = new Uint8Array(await object.arrayBuffer());
+  let thumbnail;
+  try {
+    thumbnail = createBlurredThumbnail(source, detectFileKind(source));
+  } catch (error) {
+    if (error instanceof ThumbnailError && error.status !== 500) {
+      return c.json({ error: error.message }, error.status);
+    }
+    console.error("Failed to regenerate elevation thumbnail", {
+      productId: product.id,
+      message: error instanceof Error ? error.message : "unknown error",
+    });
+    return c.json({ error: "Unable to generate the thumbnail." }, 500);
+  }
+
+  const thumbKey = elevationThumbKey(product.id);
+  await putAsset(c.env.BUCKET, thumbKey, thumbnail.bytes, thumbnail.contentType);
+  const oldThumb = await setElevationThumbKey(prisma, product, thumbKey);
+  if (oldThumb && oldThumb !== thumbKey) await deleteAssets(c.env.BUCKET, [oldThumb]);
+  return c.json({ thumbnailKey: thumbKey });
 });

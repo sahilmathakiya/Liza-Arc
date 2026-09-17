@@ -13,6 +13,7 @@ import {
   failPurchase,
   getUserOrder,
   listUserOrders,
+  withAccessExpiry,
 } from "../services/orders";
 
 type CheckoutContext = Context<{ Bindings: Env }>;
@@ -49,6 +50,7 @@ checkoutRouter.post("/", async (c) => {
         entitlementType: item.entitlementType,
         priceCents: item.priceCents,
         product: item.product,
+        accessExpiresAt: item.entitlement?.expiresAt ?? null,
       })),
     },
     201,
@@ -83,7 +85,7 @@ checkoutRouter.get("/orders", async (c) => {
   if (!session) return c.json({ error: "Unauthorized" }, 401);
   const prisma = createPrisma(c.env.DATABASE_URL);
   const orders = await listUserOrders(prisma, session.user.id);
-  return c.json({ orders });
+  return c.json({ orders: orders.map(withAccessExpiry) });
 });
 
 checkoutRouter.get("/orders/:id", async (c) => {
@@ -92,7 +94,7 @@ checkoutRouter.get("/orders/:id", async (c) => {
   const prisma = createPrisma(c.env.DATABASE_URL);
   const order = await getUserOrder(prisma, c.req.param("id"), session.user.id);
   if (!order) return c.json({ error: "Order not found" }, 404);
-  return c.json({ order });
+  return c.json({ order: withAccessExpiry(order) });
 });
 
 checkoutRouter.get("/entitlements", async (c) => {
@@ -105,6 +107,7 @@ checkoutRouter.get("/entitlements", async (c) => {
       id: row.id,
       type: row.type,
       createdAt: row.createdAt,
+      expiresAt: row.expiresAt,
       downloadKind: ENTITLEMENT_DOWNLOAD_KIND[row.type],
       product: row.product,
     })),

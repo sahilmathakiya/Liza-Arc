@@ -40,6 +40,11 @@ export function ProductUpload({
       return [
         { kind: 'floor-plan' as const, label: ASSET_KIND_LABELS['floor-plan'], key: selected.floorPlan.floorPlanKey },
         { kind: 'elevation' as const, label: ASSET_KIND_LABELS.elevation, key: selected.floorPlan.elevationKey },
+        {
+          kind: 'thumbnail' as const,
+          label: 'Elevation thumbnail',
+          key: selected.floorPlan.elevationThumbKey,
+        },
       ]
     }
     if (selected.type === 'INTERIOR_PLAN' && selected.interiorPlan) {
@@ -68,8 +73,12 @@ export function ProductUpload({
     }
     startTransition(async () => {
       try {
-        const { key } = await uploadAsset(selected.id, activeKind, file)
-        setMessage(`Uploaded to ${key}`)
+        const { key, thumbnailKey } = await uploadAsset(selected.id, activeKind, file)
+        setMessage(
+          activeKind === 'elevation' && !thumbnailKey
+            ? `Uploaded to ${key} — thumbnail generation failed; regenerate it from the products list.`
+            : `Uploaded to ${key}`,
+        )
         if (fileInput) fileInput.value = ''
         onUploaded()
       } catch (e) {

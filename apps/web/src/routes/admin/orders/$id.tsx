@@ -2,6 +2,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { Badge, statusTone } from '#/components/ui/badge'
 import { Container } from '#/components/ui/layout'
 import { getAdminOrder } from '#/lib/orders'
+import { accessLabel } from '#/lib/expiry'
 import { ENTITLEMENT_TYPE_LABELS, formatPrice } from '#/lib/products'
 
 export const Route = createFileRoute('/admin/orders/$id')({
@@ -58,6 +59,7 @@ function AdminOrderDetailPage() {
               <div className="min-w-0">
                 <p className="truncate font-medium text-ink">{item.product.name}</p>
                 <p className="text-sm text-ink-soft">{ENTITLEMENT_TYPE_LABELS[item.entitlementType]}</p>
+                <p className="mt-1 text-xs text-ink-faint">{accessLabel(item.accessExpiresAt)}</p>
               </div>
               <p className="font-medium text-ink">{formatPrice(item.priceCents)}</p>
             </li>

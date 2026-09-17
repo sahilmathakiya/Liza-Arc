@@ -3,8 +3,11 @@ import { Link, createFileRoute, useRouter } from '@tanstack/react-router'
 import { FormError } from '#/components/auth/form-error'
 import { Button } from '#/components/ui/button'
 import { Container } from '#/components/ui/layout'
+import { usePaidDownload } from '#/hooks/use-paid-download'
+import { paidAssetFallbackFilename } from '#/lib/download'
+import { accessLabel, isExpired } from '#/lib/expiry'
 import { getMyOrder, payOrder } from '#/lib/orders'
-import { ENTITLEMENT_TYPE_LABELS, formatPrice, paidAssetUrl } from '#/lib/products'
+import { ENTITLEMENT_TYPE_LABELS, formatPrice } from '#/lib/products'
 
 const DOWNLOAD_KIND_BY_ENTITLEMENT = {
   FLOOR_PLAN: 'floor-plan',
@@ -26,6 +29,7 @@ function CheckoutPage() {
   const { order } = Route.useLoaderData()
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState<'success' | 'fail' | null>(null)
+  const { download, pendingKey, error: downloadError } = usePaidDownload()
 
   async function handlePay(result: 'success' | 'fail') {
     setError(null)
@@ -103,17 +107,59 @@ function CheckoutPage() {
             Your items are unlocked — download them below or from your purchases page.
           </p>
           <ul className="mt-4 space-y-2">
-            {order.items.map((item) => (
-              <li key={item.id}>
-                <a
-                  href={paidAssetUrl(item.product.id, DOWNLOAD_KIND_BY_ENTITLEMENT[item.entitlementType])}
-                  className="inline-flex h-10 items-center gap-2 rounded-md bg-brand px-4 text-sm font-medium text-brand-foreground transition hover:bg-brand/85"
-                >
-                  Download {ENTITLEMENT_TYPE_LABELS[item.entitlementType]} — {item.product.name}
-                </a>
-              </li>
-            ))}
+            {order.items.map((item) => {
+              const kind = DOWNLOAD_KIND_BY_ENTITLEMENT[item.entitlementType]
+              const expiresAt = item.accessExpiresAt
+              const busy = pendingKey === item.id
+
+              if (isExpired(expiresAt)) {
+                return (
+                  <li key={item.id} className="text-sm text-ink-soft">
+                    <span className="font-medium text-ink">{item.product.name}</span> —{' '}
+                    {accessLabel(expiresAt)}.{' '}
+                    {item.product.type === 'FLOOR_PLAN' ? (
+                      <Link
+                        to="/floor-plans/$slug"
+                        params={{ slug: item.product.slug }}
+                        className="font-medium text-ink hover:underline"
+                      >
+                        Buy again
+                      </Link>
+                    ) : (
+                      <Link
+                        to="/interiors/$slug"
+                        params={{ slug: item.product.slug }}
+                        className="font-medium text-ink hover:underline"
+                      >
+                        Buy again
+                      </Link>
+                    )}
+                  </li>
+                )
+              }
+
+              return (
+                <li key={item.id} className="space-y-1">
+                  <Button
+                    variant="primary"
+                    size="md"
+                    disabled={pendingKey !== null}
+                    onClick={() =>
+                      download(item.id, item.product.id, kind, paidAssetFallbackFilename(item.product.slug, kind))
+                    }
+                  >
+                    {busy
+                      ? 'Preparing your download…'
+                      : `Download ${ENTITLEMENT_TYPE_LABELS[item.entitlementType]} — ${item.product.name}`}
+                  </Button>
+                  <p className="text-xs text-ink-faint">{accessLabel(expiresAt)}</p>
+                </li>
+              )
+            })}
           </ul>
+          <div className="mt-3">
+            <FormError message={downloadError} />
+          </div>
           <Link to="/purchases" className="mt-4 inline-block text-sm font-medium text-ink hover:underline">
             Go to my purchases →
           </Link>

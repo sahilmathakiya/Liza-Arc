@@ -16,6 +16,7 @@ export interface FloorPlanDetails {
   bundlePriceCents: number | null
   floorPlanKey: string | null
   elevationKey: string | null
+  elevationThumbKey: string | null
 }
 
 export interface InteriorPlanDetails {
@@ -89,7 +90,7 @@ export async function uploadAsset(
   productId: string,
   kind: AssetKind,
   file: File,
-): Promise<{ key: string }> {
+): Promise<{ key: string; thumbnailKey: string | null }> {
   const form = new FormData()
   form.append('kind', kind)
   form.append('file', file)
@@ -98,11 +99,19 @@ export async function uploadAsset(
     body: form,
     credentials: 'include',
   })
-  const data = (await res.json().catch(() => null)) as { key?: string; error?: string } | null
+  const data = (await res.json().catch(() => null)) as
+    | { key?: string; thumbnailKey?: string | null; error?: string }
+    | null
   if (!res.ok || !data?.key) {
     throw new Error(data?.error ?? `Upload failed with status ${res.status}`)
   }
-  return { key: data.key }
+  return { key: data.key, thumbnailKey: data.thumbnailKey ?? null }
+}
+
+export function regenerateThumbnail(productId: string) {
+  return apiFetch<{ thumbnailKey: string }>(`/api/admin/products/${productId}/thumbnail`, {
+    method: 'POST',
+  })
 }
 
 export function formatPrice(cents: number): string {
@@ -156,6 +165,7 @@ export interface FloorPlanPublic {
   bundlePriceCents: number | null
   hasFloorPlan: boolean
   hasElevation: boolean
+  hasThumbnail: boolean
 }
 
 export interface InteriorPlanPublic {
@@ -184,6 +194,8 @@ export interface ProductDetail {
   type: ProductType
   createdAt: string
   owned: EntitlementType[]
+  accessExpiries: { type: EntitlementType; expiresAt: string | null }[]
+  expiredTypes: EntitlementType[]
   floorPlan: FloorPlanPublic | null
   interiorPlan: InteriorPlanPublic | null
 }
@@ -215,6 +227,10 @@ export async function getProductBySlug(slug: string) {
 
 export function interiorPreviewUrl(productId: string) {
   return `${API_URL}/api/assets/interior/${productId}/preview`
+}
+
+export function floorPlanThumbnailUrl(productId: string) {
+  return `${API_URL}/api/assets/floor-plan/${productId}/thumbnail`
 }
 
 export function paidAssetUrl(productId: string, kind: AssetKind) {

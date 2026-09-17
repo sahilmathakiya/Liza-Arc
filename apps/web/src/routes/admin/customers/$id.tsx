@@ -8,6 +8,7 @@ import { EmptyState } from '#/components/ui/feedback'
 import { Label, Select } from '#/components/ui/field'
 import { Container } from '#/components/ui/layout'
 import { getAdminCustomer, grantEntitlement, revokeEntitlement } from '#/lib/orders'
+import { accessLabel } from '#/lib/expiry'
 import type { EntitlementType } from '#/lib/products'
 import { ENTITLEMENT_TYPE_LABELS, formatPrice, listProducts } from '#/lib/products'
 
@@ -102,6 +103,7 @@ function AdminCustomerDetailPage() {
                     {ENTITLEMENT_TYPE_LABELS[entitlement.type]} ·{' '}
                     {new Date(entitlement.createdAt).toLocaleDateString('en-IN')}
                   </p>
+                  <p className="mt-1 text-xs text-ink-faint">{accessLabel(entitlement.expiresAt)}</p>
                 </div>
                 <Button variant="danger" size="sm" onClick={() => handleRevoke(entitlement.id)}>
                   Revoke

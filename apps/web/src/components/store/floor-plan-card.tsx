@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import type { FloorPlanPublic } from '#/lib/products'
-import { formatPrice } from '#/lib/products'
+import { floorPlanThumbnailUrl, formatPrice } from '#/lib/products'
 
 export function FloorPlanCard({ product }: { product: FloorPlanPublic }) {
   const startingPrice = Math.min(product.floorPlanPriceCents, product.elevationPriceCents)
@@ -10,13 +10,24 @@ export function FloorPlanCard({ product }: { product: FloorPlanPublic }) {
       params={{ slug: product.slug }}
       className="group flex flex-col overflow-hidden rounded-lg border border-line bg-surface transition hover:border-line-strong"
     >
-      <div className="flex h-40 items-center justify-center border-b border-line bg-surface-muted">
-        <div className="text-center">
-          <p className="text-2xl font-semibold tracking-tight text-ink">
-            {product.widthFt} × {product.lengthFt} ft
-          </p>
-          <p className="mt-1 text-sm text-ink-soft">{product.floorAreaSqFt} sqft plot</p>
-        </div>
+      <div className="h-40 overflow-hidden border-b border-line bg-surface-muted">
+        {product.hasThumbnail ? (
+          <img
+            src={floorPlanThumbnailUrl(product.id)}
+            alt={`Elevation preview of ${product.name}`}
+            loading="lazy"
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <div className="text-center">
+              <p className="text-2xl font-semibold tracking-tight text-ink">
+                {product.widthFt} × {product.lengthFt} ft
+              </p>
+              <p className="mt-1 text-sm text-ink-soft">{product.floorAreaSqFt} sqft plot</p>
+            </div>
+          </div>
+        )}
       </div>
       <div className="flex flex-1 flex-col p-4">
         <p className="font-medium text-ink group-hover:underline">{product.name}</p>
