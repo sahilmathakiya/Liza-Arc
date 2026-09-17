@@ -28,19 +28,19 @@ function DashboardPage() {
     <div className="min-h-screen bg-canvas">
       <header className="border-b border-line bg-surface">
         <Container className="flex h-16 items-center justify-between">
-          <Link to="/" className="text-base font-semibold tracking-tight text-ink">
-            liza-arch
+           <Link to="/" className="flex items-center gap-2 text-sm font-black uppercase tracking-[1.4px] text-ink">
+             <span className="h-2.5 w-2.5 bg-brand" aria-hidden /> liza-arch
           </Link>
           <nav className="flex items-center gap-1">
             <Link
               to="/purchases"
-              className="rounded-md px-3 py-2 text-sm text-ink-soft transition hover:text-ink"
+               className="rounded-[4px] px-3 py-2 text-xs font-semibold uppercase tracking-wide text-ink-soft transition hover:text-brand"
             >
               My purchases
             </Link>
             <Link
               to="/floor-plans"
-              className="rounded-md px-3 py-2 text-sm text-ink-soft transition hover:text-ink"
+               className="rounded-[4px] px-3 py-2 text-xs font-semibold uppercase tracking-wide text-ink-soft transition hover:text-brand"
             >
               Browse plans
             </Link>
@@ -49,9 +49,10 @@ function DashboardPage() {
       </header>
 
       <Container className="max-w-2xl py-10">
-        <div className="rounded-lg border border-line bg-surface p-8">
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">Account</h1>
-          <p className="mt-1 text-sm text-ink-soft">You are signed in.</p>
+         <div className="rounded-[8px] border border-line bg-surface p-8 shadow-[0_4px_25px_rgba(0,0,0,.14)_inset]">
+           <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">Account / profile</p>
+           <h1 className="mt-3 text-3xl font-black tracking-tight text-ink">Account</h1>
+           <p className="mt-2 text-sm text-ink-soft">You are signed in.</p>
 
           <div className="mt-6 flex items-center gap-4">
             {session.user.image ? (
@@ -74,14 +75,14 @@ function DashboardPage() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to="/purchases"
-              className="inline-flex h-10 items-center rounded-md bg-brand px-4 text-sm font-medium text-brand-foreground transition hover:bg-brand/85"
+                  className="inline-flex h-10 items-center rounded-[6px] border border-brand bg-brand px-4 text-xs font-bold uppercase tracking-wide !text-brand-foreground transition hover:bg-active"
             >
               My purchases
             </Link>
             {isAdminRole(session.user.role) && (
               <Link
                 to="/admin"
-                className="inline-flex h-10 items-center rounded-md border border-line bg-surface px-4 text-sm font-medium text-ink transition hover:bg-surface-muted"
+                 className="inline-flex h-10 items-center rounded-[4px] border border-line bg-surface px-4 text-xs font-bold uppercase tracking-wide text-ink transition hover:border-brand hover:text-brand"
               >
                 Admin dashboard
               </Link>
@@ -92,8 +93,8 @@ function DashboardPage() {
           </div>
         </div>
 
-        <div className="mt-6 rounded-lg border border-line bg-surface p-8">
-          <h2 className="text-lg font-semibold tracking-tight text-ink">
+         <div className="mt-6 rounded-[8px] border border-line bg-surface p-8">
+           <h2 className="text-xl font-bold tracking-tight text-ink">
             {hasPassword ? 'Change password' : 'Set password'}
           </h2>
           <p className="mt-1 text-sm text-ink-soft">

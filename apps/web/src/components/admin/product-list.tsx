@@ -112,7 +112,7 @@ export function ProductList({ products }: { products: Product[] }) {
         action={
           <Link
             to="/admin/upload"
-            className="inline-flex h-10 items-center rounded-md bg-brand px-4 text-sm font-medium text-brand-foreground transition hover:bg-brand/85"
+             className="inline-flex h-10 items-center rounded-[6px] border border-brand bg-brand px-4 text-xs font-bold uppercase tracking-wide !text-brand-foreground transition hover:bg-active"
           >
             Upload product
           </Link>
@@ -123,10 +123,10 @@ export function ProductList({ products }: { products: Product[] }) {
 
   return (
     <div>
-      <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+       <div className="overflow-x-auto rounded-[8px] border border-line bg-surface">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-line text-xs uppercase tracking-wide text-ink-faint">
+             <tr className="border-b border-line text-[11px] font-semibold uppercase tracking-[1.2px] text-ink-faint">
               <th scope="col" className="px-4 py-3 font-medium">Product</th>
               <th scope="col" className="px-4 py-3 font-medium">Details</th>
               <th scope="col" className="px-4 py-3 font-medium">Prices</th>

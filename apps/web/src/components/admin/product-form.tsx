@@ -2,11 +2,10 @@ import { useState, useTransition } from 'react'
 import type { FormEvent } from 'react'
 import { FormError } from '#/components/auth/form-error'
 import { FormField } from '#/components/auth/form-field'
+import { Button } from '#/components/ui/button'
+import { Input, Label, Select, Textarea } from '#/components/ui/field'
 import type { InteriorCategory, Product, ProductType } from '#/lib/products'
 import { INTERIOR_CATEGORY_LABELS, createProduct, rupeesToCents } from '#/lib/products'
-
-const selectClass =
-  'w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900 outline-none transition focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200'
 
 export function ProductForm({ onCreated }: { onCreated: (product: Product) => void }) {
   const [type, setType] = useState<ProductType>('FLOOR_PLAN')
@@ -63,24 +62,22 @@ export function ProductForm({ onCreated }: { onCreated: (product: Product) => vo
   }
 
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-neutral-900">Create product</h2>
+    <div className="rounded-[8px] border border-line bg-surface p-6 shadow-[0_4px_25px_rgba(0,0,0,.14)_inset]">
+      <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">Catalog / new item</p>
+      <h2 className="mt-3 text-2xl font-black text-ink">Create product</h2>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="product-type" className="mb-1.5 block text-sm font-medium text-neutral-700">
-              Type
-            </label>
-            <select
+            <Label htmlFor="product-type">Type</Label>
+            <Select
               id="product-type"
               name="type"
               value={type}
               onChange={(e) => setType(e.target.value as ProductType)}
-              className={selectClass}
             >
               <option value="FLOOR_PLAN">Floor plan</option>
               <option value="INTERIOR_PLAN">Interior plan</option>
-            </select>
+            </Select>
           </div>
           <FormField id="product-name" label="Name" name="name" required placeholder="40x60 Family Home" />
         </div>
@@ -137,16 +134,14 @@ export function ProductForm({ onCreated }: { onCreated: (product: Product) => vo
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="category" className="mb-1.5 block text-sm font-medium text-neutral-700">
-                Category
-              </label>
-              <select id="category" name="category" className={selectClass}>
+              <Label htmlFor="category">Category</Label>
+              <Select id="category" name="category">
                 {Object.entries(INTERIOR_CATEGORY_LABELS).map(([value, label]) => (
                   <option key={value} value={value}>
                     {label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
             <FormField
               id="workingDrawingPrice"
@@ -161,31 +156,24 @@ export function ProductForm({ onCreated }: { onCreated: (product: Product) => vo
         )}
 
         <div>
-          <label htmlFor="product-description" className="mb-1.5 block text-sm font-medium text-neutral-700">
-            Description (optional)
-          </label>
-          <textarea
+          <Label htmlFor="product-description">Description (optional)</Label>
+          <Textarea
             id="product-description"
             name="description"
             rows={2}
-            className={selectClass}
             placeholder="Short description shown on the product page"
           />
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-neutral-700">
-          <input type="checkbox" name="published" className="h-4 w-4 rounded border-neutral-300" />
+        <label className="flex items-center gap-2 text-sm text-ink-soft">
+          <Input type="checkbox" name="published" className="h-4 w-4 w-auto accent-brand" />
           Publish immediately
         </label>
 
         <FormError message={error} />
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <Button type="submit" disabled={pending}>
           {pending ? 'Creating…' : 'Create product'}
-        </button>
+        </Button>
       </form>
     </div>
   )

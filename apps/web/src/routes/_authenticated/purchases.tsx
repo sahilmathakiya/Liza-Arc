@@ -30,19 +30,19 @@ function PurchasesPage() {
     <div className="min-h-screen bg-canvas">
       <header className="border-b border-line bg-surface">
         <Container className="flex h-16 items-center justify-between">
-          <Link to="/" className="text-base font-semibold tracking-tight text-ink">
-            liza-arch
+           <Link to="/" className="flex items-center gap-2 text-sm font-black uppercase tracking-[1.4px] text-ink">
+             <span className="h-2.5 w-2.5 bg-brand" aria-hidden /> liza-arch
           </Link>
           <nav className="flex items-center gap-1">
             <Link
               to="/dashboard"
-              className="rounded-md px-3 py-2 text-sm text-ink-soft transition hover:text-ink"
+               className="rounded-[4px] px-3 py-2 text-xs font-semibold uppercase tracking-wide text-ink-soft transition hover:text-brand"
             >
               Account
             </Link>
             <Link
               to="/floor-plans"
-              className="rounded-md px-3 py-2 text-sm text-ink-soft transition hover:text-ink"
+               className="rounded-[4px] px-3 py-2 text-xs font-semibold uppercase tracking-wide text-ink-soft transition hover:text-brand"
             >
               Browse plans
             </Link>
@@ -62,13 +62,13 @@ function PurchasesPage() {
               title="You have not purchased anything yet"
               message="Browse the catalog — anything you buy appears here with a download button."
               action={
-                <Link to="/floor-plans" className="inline-flex h-10 items-center rounded-md bg-brand px-4 text-sm font-medium text-brand-foreground transition hover:bg-brand/85">
+                  <Link to="/floor-plans" className="inline-flex h-10 items-center rounded-[6px] border border-brand bg-brand px-4 text-xs font-bold uppercase tracking-wide !text-brand-foreground transition hover:bg-active">
                   Browse floor plans
                 </Link>
               }
             />
           ) : (
-            <ul className="divide-y divide-line rounded-lg border border-line bg-surface px-4">
+             <ul className="divide-y divide-line rounded-[8px] border border-line bg-surface px-4">
               {entitlements.map((entitlement) => {
                 const expiresAt = entitlement.expiresAt
                 const expired = isExpired(expiresAt)
@@ -136,7 +136,7 @@ function PurchasesPage() {
           {orders.length === 0 ? (
             <p className="mt-3 text-sm text-ink-soft">No orders yet.</p>
           ) : (
-            <ul className="mt-3 divide-y divide-line rounded-lg border border-line bg-surface px-4">
+             <ul className="mt-3 divide-y divide-line rounded-[8px] border border-line bg-surface px-4">
               {orders.map((order) => (
                 <li key={order.id} className="py-4">
                   <div className="flex items-center justify-between gap-4">

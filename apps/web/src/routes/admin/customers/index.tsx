@@ -44,10 +44,10 @@ function AdminCustomersPage() {
             message="Customers appear here once they sign up for an account."
           />
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+           <div className="overflow-x-auto rounded-[8px] border border-line bg-surface">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-line text-xs uppercase tracking-wide text-ink-faint">
+                 <tr className="border-b border-line text-[11px] font-semibold uppercase tracking-[1.2px] text-ink-faint">
                   <th scope="col" className="px-4 py-3 font-medium">Customer</th>
                   <th scope="col" className="px-4 py-3 font-medium">Orders</th>
                   <th scope="col" className="px-4 py-3 font-medium">Owned items</th>

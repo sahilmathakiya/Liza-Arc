@@ -13,7 +13,8 @@ export const Route = createFileRoute('/_auth')({
 
 function AuthLayout() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-canvas p-4">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-canvas p-4">
+      <div className="architectural-grid pointer-events-none absolute inset-0 opacity-25" aria-hidden />
       <div className="w-full max-w-sm">
         <Outlet />
       </div>

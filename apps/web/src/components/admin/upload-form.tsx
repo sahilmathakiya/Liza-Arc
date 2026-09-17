@@ -58,7 +58,7 @@ function FilePicker({
         type="file"
         accept={accept}
         onChange={handleChange}
-        className="mt-2 block w-full text-sm text-ink-soft file:mr-3 file:rounded-md file:border-0 file:bg-brand file:px-3 file:py-2 file:text-xs file:font-medium file:text-brand-foreground hover:file:bg-brand/85"
+        className="mt-2 block w-full text-sm text-ink-soft file:mr-3 file:rounded-[6px] file:border-0 file:bg-brand file:px-3 file:py-2 file:text-xs file:font-medium file:!text-brand-foreground hover:file:bg-active"
       />
       {file ? (
         <div className="mt-3 flex items-center gap-3">
@@ -197,16 +197,12 @@ export function UploadForm() {
               onClick={() => switchType(option.value)}
               className={
                 type === option.value
-                  ? 'rounded-lg border-2 border-ink bg-brand p-4 text-left text-brand-foreground'
-                  : 'rounded-lg border-2 border-line bg-surface p-4 text-left transition hover:border-line-strong'
+                  ? 'rounded-[8px] border border-brand bg-brand/10 p-4 text-left text-ink'
+                   : 'rounded-[8px] border border-line bg-surface p-4 text-left transition hover:border-line-strong'
               }
             >
               <p className="font-semibold">{option.label}</p>
-              <p
-                className={
-                  type === option.value ? 'mt-1 text-xs text-brand-foreground/70' : 'mt-1 text-xs text-ink-soft'
-                }
-              >
+               <p className="mt-1 text-xs text-ink-soft">
                 {option.hint}
               </p>
             </button>

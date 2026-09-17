@@ -8,9 +8,9 @@ export function FloorPlanCard({ product }: { product: FloorPlanPublic }) {
     <Link
       to="/floor-plans/$slug"
       params={{ slug: product.slug }}
-      className="group flex flex-col overflow-hidden rounded-lg border border-line bg-surface transition hover:border-line-strong"
+      className="group flex flex-col overflow-hidden rounded-[8px] border border-line bg-surface transition hover:border-line-strong hover:shadow-[0_8px_24px_rgba(0,0,0,.24)]"
     >
-      <div className="h-40 overflow-hidden border-b border-line bg-surface-muted">
+      <div className="h-48 overflow-hidden border-b border-line bg-surface-muted">
         {product.hasThumbnail ? (
           <img
             src={floorPlanThumbnailUrl(product.id, product.thumbnailVersion)}
@@ -22,7 +22,7 @@ export function FloorPlanCard({ product }: { product: FloorPlanPublic }) {
         ) : (
           <div className="flex h-full items-center justify-center">
             <div className="text-center">
-              <p className="text-2xl font-semibold tracking-tight text-ink">
+               <p className="text-2xl font-black tracking-tight text-ink">
                 {product.widthFt} × {product.lengthFt} ft
               </p>
               <p className="mt-1 text-sm text-ink-soft">{product.floorAreaSqFt} sqft plot</p>
@@ -31,7 +31,7 @@ export function FloorPlanCard({ product }: { product: FloorPlanPublic }) {
         )}
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <p className="font-medium text-ink group-hover:underline">{product.name}</p>
+         <p className="font-bold text-ink group-hover:text-brand">{product.name}</p>
         <p className="mt-1 text-sm text-ink-soft">
           {product.bedrooms} bed · {product.bathrooms} bath · {product.floors} floor
           {product.floors > 1 ? 's' : ''}
@@ -41,7 +41,7 @@ export function FloorPlanCard({ product }: { product: FloorPlanPublic }) {
             From <span className="font-semibold text-ink">{formatPrice(startingPrice)}</span>
           </p>
           {product.bundlePriceCents != null && (
-            <span className="text-xs font-medium text-ink-soft">Bundle available</span>
+             <span className="text-xs font-semibold uppercase tracking-wide text-brand">Bundle available</span>
           )}
         </div>
       </div>

@@ -38,9 +38,9 @@ function AdminOrdersPage() {
   const totalPages = totalPagesFor(total, limit)
 
   const chipClass = (active: boolean) =>
-    active
-      ? 'rounded-full bg-brand px-4 py-1.5 text-sm font-medium text-brand-foreground'
-      : 'rounded-full border border-line bg-surface px-4 py-1.5 text-sm text-ink-soft transition hover:border-line-strong hover:text-ink'
+       active
+       ? 'rounded-full border border-brand/50 bg-brand/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand'
+       : 'rounded-full border border-line bg-surface px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-ink-soft transition hover:border-line-strong hover:text-brand'
 
   return (
     <Container className="py-8">
@@ -66,10 +66,10 @@ function AdminOrdersPage() {
         {orders.length === 0 ? (
           <EmptyState title="No orders found" message="Orders will appear here as customers check out." />
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+           <div className="overflow-x-auto rounded-[8px] border border-line bg-surface">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-line text-xs uppercase tracking-wide text-ink-faint">
+                 <tr className="border-b border-line text-[11px] font-semibold uppercase tracking-[1.2px] text-ink-faint">
                   <th scope="col" className="px-4 py-3 font-medium">Order</th>
                   <th scope="col" className="px-4 py-3 font-medium">Customer</th>
                   <th scope="col" className="px-4 py-3 font-medium">Items</th>

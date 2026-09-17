@@ -1,29 +1,25 @@
 @import "tailwindcss";
 
-/*
-  Brand tokens.
-  When a client color theme arrives, change ONLY the values in :root.
-  All components consume semantic tokens (bg-brand, text-ink, border-line, ...),
-  never hardcoded brand colors.
-*/
 :root {
-  --brand: #171717;
-  --brand-foreground: #fafafa;
-  --accent: #171717;
-  --canvas: #fafafa;
-  --surface: #ffffff;
-  --surface-muted: #f5f5f5;
-  --line: #e5e5e5;
-  --line-strong: #d4d4d4;
-  --ink: #171717;
-  --ink-soft: #525252;
-  --ink-faint: #a3a3a3;
+  --brand: #d4b24c;
+  --brand-foreground: #0b0b0a;
+  --canvas: #0b0b0a;
+  --surface: #242321;
+  --surface-muted: #242321;
+  --line: rgba(143, 119, 49, 0.45);
+  --line-strong: #8f7731;
+  --ink: #f2f0e9;
+  --ink-soft: #9a9890;
+  --ink-faint: rgba(154, 152, 144, 0.68);
+  --active: #d4b24c;
+  --olive: #8f7731;
+  --line-grid: rgba(143, 119, 49, 0.18);
+  --radius: 4px;
 }
 
 @theme inline {
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
-  --color-accent: var(--accent);
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
@@ -32,6 +28,10 @@
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-ink-faint: var(--ink-faint);
+  --color-active: var(--active);
+  --color-olive: var(--olive);
+  --font-sans: Inter, Arial, Helvetica, sans-serif;
+  --font-mono: Inconsolata, ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 * {
@@ -48,12 +48,30 @@ body {
   margin: 0;
   background-color: var(--canvas);
   color: var(--ink);
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+.architectural-grid {
+  background-image: linear-gradient(var(--line-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-grid) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
 :focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: var(--brand);
+  color: var(--brand-foreground);
 }
 
 @media (prefers-reduced-motion: reduce) {

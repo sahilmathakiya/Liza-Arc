@@ -157,7 +157,7 @@ export function ProductUpload({
                 type="file"
                 required
                 accept={activeKind ? KIND_ACCEPT[activeKind] : undefined}
-                className="w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink-soft file:mr-3 file:rounded-md file:border-0 file:bg-brand file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-brand-foreground hover:file:bg-brand/85"
+                className="w-full rounded-[6px] border border-line-strong bg-surface-muted px-3 py-2 text-sm text-ink-soft file:mr-3 file:rounded-[6px] file:border-0 file:bg-brand file:px-3 file:py-1.5 file:text-xs file:font-medium file:!text-brand-foreground hover:file:bg-active"
               />
             </div>
           </div>

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 export function Container({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <div className={`mx-auto w-full max-w-6xl px-4 sm:px-6 ${className}`}>{children}</div>
+  return <div className={`mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-12 ${className}`}>{children}</div>
 }
 
 export function PageHeader({
@@ -14,10 +14,11 @@ export function PageHeader({
   actions?: ReactNode
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
+    <div className="flex flex-wrap items-end justify-between gap-5 border-b border-line pb-7">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-ink-soft">{subtitle}</p>}
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[1.4px] text-brand">liza-arch / workspace</p>
+        <h1 className="text-3xl font-black tracking-tight text-ink sm:text-4xl">{title}</h1>
+        {subtitle && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
@@ -34,10 +35,10 @@ export function SectionHeading({
   action?: ReactNode
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="flex flex-wrap items-end justify-between gap-5">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight text-ink">{title}</h2>
-        {subtitle && <p className="mt-1 text-sm text-ink-soft">{subtitle}</p>}
+        <h2 className="text-2xl font-bold tracking-tight text-ink">{title}</h2>
+        {subtitle && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">{subtitle}</p>}
       </div>
       {action}
     </div>
