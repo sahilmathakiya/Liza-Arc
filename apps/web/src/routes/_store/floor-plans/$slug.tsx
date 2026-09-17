@@ -56,9 +56,11 @@ function FloorPlanDetailPage() {
           <div className="overflow-hidden rounded-lg border border-line bg-surface-muted">
             {floorPlan.hasThumbnail ? (
               <img
-                src={floorPlanThumbnailUrl(product.id)}
+                src={floorPlanThumbnailUrl(product.id, floorPlan.thumbnailVersion)}
                 alt={`Elevation preview of ${product.name}`}
-                className="max-h-[28rem] w-full object-cover"
+                decoding="async"
+                fetchPriority="high"
+                className="aspect-[4/3] w-full object-cover"
               />
             ) : (
               <div className="flex h-72 items-center justify-center">

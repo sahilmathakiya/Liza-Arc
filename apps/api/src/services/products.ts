@@ -1,5 +1,6 @@
 import { isPrismaError, type Prisma } from "../db";
 import type { AssetKind } from "../lib/r2";
+import { interiorPreviewCardKey, interiorPreviewHeroKey } from "../lib/r2";
 import { slugify } from "../lib/slug";
 import type { EntitlementType, ProductType } from "../schema/enums";
 import type {
@@ -167,6 +168,8 @@ export function collectAssetKeys(product: ProductWithDetails): string[] {
     floorPlan?.elevationThumbKey,
     interiorPlan?.previewKey,
     interiorPlan?.workingDrawingKey,
+    interiorPlan?.previewKey ? interiorPreviewCardKey(product.id) : undefined,
+    interiorPlan?.previewKey ? interiorPreviewHeroKey(product.id) : undefined,
   ].filter((key): key is string => Boolean(key));
 }
 
@@ -240,6 +243,7 @@ export async function listPublicFloorPlans(prisma: Prisma, query: FloorPlanListQ
         hasFloorPlan: Boolean(floorPlan.floorPlanKey),
         hasElevation: Boolean(floorPlan.elevationKey),
         hasThumbnail: Boolean(floorPlan.elevationThumbKey),
+        thumbnailVersion: floorPlan.elevationThumbKey,
       },
     ];
   });
@@ -344,6 +348,7 @@ export async function getPublicProductBySlug(prisma: Prisma, slug: string, userI
           hasFloorPlan: Boolean(floorPlan.floorPlanKey),
           hasElevation: Boolean(floorPlan.elevationKey),
           hasThumbnail: Boolean(floorPlan.elevationThumbKey),
+          thumbnailVersion: floorPlan.elevationThumbKey,
         }
       : null,
     interiorPlan: interiorPlan

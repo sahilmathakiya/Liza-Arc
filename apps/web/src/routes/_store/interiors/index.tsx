@@ -1,7 +1,9 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { CatalogSkeleton } from '#/components/store/catalog-skeleton'
 import { InteriorCard } from '#/components/store/interior-card'
 import { EmptyState } from '#/components/ui/feedback'
 import { Container, PageHeader } from '#/components/ui/layout'
+import { Pagination, totalPagesFor } from '#/components/ui/pagination'
 import type { InteriorCategory } from '#/lib/products'
 import { INTERIOR_CATEGORY_LABELS, listPublicInteriorPlans } from '#/lib/products'
 
@@ -36,13 +38,17 @@ export const Route = createFileRoute('/_store/interiors/')({
   validateSearch: validateInteriorsSearch,
   loaderDeps: ({ search }) => ({ search }),
   loader: ({ deps: { search } }) => listPublicInteriorPlans(search),
+  pendingMs: 200,
+  pendingComponent: CatalogSkeleton,
   component: InteriorsPage,
 })
 
 function InteriorsPage() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
-  const { products, total } = Route.useLoaderData()
+  const { products, total, limit } = Route.useLoaderData()
+  const page = search.page ?? 1
+  const totalPages = totalPagesFor(total, limit)
 
   const chipClass = (active: boolean) =>
     active
@@ -88,11 +94,21 @@ function InteriorsPage() {
           />
         </div>
       ) : (
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => (
-            <InteriorCard key={product.id} product={product} />
-          ))}
-        </div>
+        <>
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {products.map((product) => (
+              <InteriorCard key={product.id} product={product} />
+            ))}
+          </div>
+          <Pagination
+            className="mt-8"
+            page={page}
+            totalPages={totalPages}
+            onPageChange={(next) =>
+              navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) })
+            }
+          />
+        </>
       )}
     </Container>
   )

@@ -193,7 +193,7 @@ export function ProductList({ products }: { products: Product[] }) {
                             label: 'Thumb',
                             present: Boolean(floorPlan.elevationThumbKey),
                             href: floorPlan.elevationThumbKey
-                              ? floorPlanThumbnailUrl(product.id)
+                              ? floorPlanThumbnailUrl(product.id, floorPlan.elevationThumbKey)
                               : undefined,
                           },
                         ]}

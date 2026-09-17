@@ -36,8 +36,21 @@ export function assetKey(productId: string, kind: AssetKind, ext: string): strin
   return `${ASSET_DIRS[kind]}/${productId}/${kind}${ext}`;
 }
 
-export function elevationThumbKey(productId: string): string {
-  return `${ASSET_DIRS.elevation}/${productId}/elevation-thumb.jpg`;
+/**
+ * Thumbnails get a new key every time they are generated so the public URL
+ * (which is derived from this key) changes and previously cached bytes are not
+ * served after a regeneration.
+ */
+export function elevationThumbKey(productId: string, version: string | number = Date.now()): string {
+  return `${ASSET_DIRS.elevation}/${productId}/elevation-thumb-${version}.jpg`;
+}
+
+export function interiorPreviewCardKey(productId: string): string {
+  return `${ASSET_DIRS.preview}/${productId}/preview-card.webp`;
+}
+
+export function interiorPreviewHeroKey(productId: string): string {
+  return `${ASSET_DIRS.preview}/${productId}/preview-hero.webp`;
 }
 
 export function contentTypeFor(ext: string): string {

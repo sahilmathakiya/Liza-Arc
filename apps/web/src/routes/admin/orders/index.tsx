@@ -2,6 +2,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { Badge, statusTone } from '#/components/ui/badge'
 import { EmptyState } from '#/components/ui/feedback'
 import { Container, PageHeader } from '#/components/ui/layout'
+import { Pagination, totalPagesFor } from '#/components/ui/pagination'
 import { listAdminOrders } from '#/lib/orders'
 import type { OrderStatus } from '#/lib/orders'
 import { formatPrice } from '#/lib/products'
@@ -32,7 +33,9 @@ export const Route = createFileRoute('/admin/orders/')({
 function AdminOrdersPage() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
-  const { orders, total } = Route.useLoaderData()
+  const { orders, total, limit } = Route.useLoaderData()
+  const page = search.page ?? 1
+  const totalPages = totalPagesFor(total, limit)
 
   const chipClass = (active: boolean) =>
     active
@@ -106,6 +109,15 @@ function AdminOrdersPage() {
           </div>
         )}
       </div>
+
+      <Pagination
+        className="mt-6"
+        page={page}
+        totalPages={totalPages}
+        onPageChange={(next) =>
+          navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) })
+        }
+      />
     </Container>
   )
 }

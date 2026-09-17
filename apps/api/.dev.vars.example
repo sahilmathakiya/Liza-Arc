@@ -1,5 +1,12 @@
 DATABASE_URL="postgresql://USER:PASSWORD@ep-xxx-pooler.region.aws.neon.tech/DB_NAME?sslmode=require"
 BETTER_AUTH_SECRET="generate-with: openssl rand -base64 32"
+# IMPORTANT: BETTER_AUTH_URL, WEB_URL and the web app's VITE_API_URL must all
+# share the same host (all localhost or all 127.0.0.1). The Google OAuth
+# callback redirects to BETTER_AUTH_URL, while the state/session cookies are
+# set on the host the browser calls (VITE_API_URL); if they differ the state
+# cookie is not sent back and sign-in fails with "State not persisted correctly".
+# Also add http://localhost:8787/api/auth/callback/google to the Google OAuth
+# client's authorized redirect URIs.
 BETTER_AUTH_URL="http://localhost:8787"
 WEB_URL="http://localhost:3000"
 GOOGLE_CLIENT_ID="xxx.apps.googleusercontent.com"

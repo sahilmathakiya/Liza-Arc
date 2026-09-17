@@ -166,6 +166,7 @@ export interface FloorPlanPublic {
   hasFloorPlan: boolean
   hasElevation: boolean
   hasThumbnail: boolean
+  thumbnailVersion: string | null
 }
 
 export interface InteriorPlanPublic {
@@ -225,12 +226,15 @@ export async function getProductBySlug(slug: string) {
   return product
 }
 
-export function interiorPreviewUrl(productId: string) {
-  return `${API_URL}/api/assets/interior/${productId}/preview`
+export type InteriorPreviewSize = 'card' | 'hero'
+
+export function interiorPreviewUrl(productId: string, size: InteriorPreviewSize = 'hero') {
+  return `${API_URL}/api/assets/interior/${productId}/preview?size=${size}`
 }
 
-export function floorPlanThumbnailUrl(productId: string) {
-  return `${API_URL}/api/assets/floor-plan/${productId}/thumbnail`
+export function floorPlanThumbnailUrl(productId: string, version?: string | null) {
+  const base = `${API_URL}/api/assets/floor-plan/${productId}/thumbnail`
+  return version ? `${base}?v=${encodeURIComponent(version)}` : base
 }
 
 export function paidAssetUrl(productId: string, kind: AssetKind) {

@@ -6,11 +6,21 @@ import { createPrisma } from "../db";
 import { createZip } from "../lib/archive";
 import { detectFileKind } from "../lib/file-type";
 import type { FileKind } from "../lib/file-type";
-import { downloadResponseHeaders } from "../lib/r2";
+import {
+  downloadResponseHeaders,
+  interiorPreviewCardKey,
+  interiorPreviewHeroKey,
+  putAsset,
+} from "../lib/r2";
 import { isAdminRole } from "../roles";
 import type { EntitlementType } from "../schema/enums";
 import { hasEntitlement } from "../services/entitlements";
 import { getDeliverableAsset, type PaidAssetKind } from "../services/products";
+import {
+  INTERIOR_PREVIEW_CARD_MAX_DIMENSION,
+  INTERIOR_PREVIEW_HERO_MAX_DIMENSION,
+  createResizedWebp,
+} from "../services/thumbnail";
 import { WatermarkError, createWatermarkedDownload } from "../services/watermark";
 
 export const assetsRouter = new Hono<{ Bindings: Env }>();
@@ -41,6 +51,49 @@ function withFileExtension(filename: string, extension: string): string {
 
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
   return bytes.slice().buffer;
+}
+
+type PreviewSize = "card" | "hero";
+
+function previewDerivativeKey(productId: string, size: PreviewSize): string {
+  return size === "card" ? interiorPreviewCardKey(productId) : interiorPreviewHeroKey(productId);
+}
+
+/**
+ * Returns the resized storefront preview derivative, generating and storing it
+ * on first request so products uploaded before derivatives existed still get
+ * optimized. Any failure is non-fatal: the caller falls back to the original.
+ */
+async function getOrCreatePreviewDerivative(
+  c: AssetsContext,
+  productId: string,
+  sourceKey: string,
+  size: PreviewSize,
+): Promise<R2ObjectBody | null> {
+  const derivativeKey = previewDerivativeKey(productId, size);
+  const existing = await c.env.BUCKET.get(derivativeKey);
+  if (existing) return existing;
+
+  const sourceObject = await c.env.BUCKET.get(sourceKey);
+  if (!sourceObject) return null;
+
+  try {
+    const bytes = new Uint8Array(await sourceObject.arrayBuffer());
+    const maxDimension =
+      size === "card"
+        ? INTERIOR_PREVIEW_CARD_MAX_DIMENSION
+        : INTERIOR_PREVIEW_HERO_MAX_DIMENSION;
+    const derivative = createResizedWebp(bytes, detectFileKind(bytes), maxDimension);
+    await putAsset(c.env.BUCKET, derivativeKey, derivative.bytes, derivative.contentType);
+    return await c.env.BUCKET.get(derivativeKey);
+  } catch (error) {
+    console.error("Failed to generate interior preview derivative on demand", {
+      productId,
+      size,
+      message: error instanceof Error ? error.message : "unknown error",
+    });
+    return null;
+  }
 }
 
 function watermarkFailure(
@@ -81,15 +134,24 @@ async function denyIfNotEntitled(
 }
 
 assetsRouter.get("/interior/:id/preview", async (c) => {
+  const productId = c.req.param("id");
   const prisma = createPrisma(c.env.DATABASE_URL);
   const product = await prisma.product.findFirst({
-    where: { id: c.req.param("id"), published: true, type: "INTERIOR_PLAN" },
+    where: { id: productId, published: true, type: "INTERIOR_PLAN" },
     select: { interiorPlan: { select: { previewKey: true } } },
   });
   const key = product?.interiorPlan?.previewKey;
   if (!key) return c.json({ error: "Preview not found" }, 404);
 
-  const object = await c.env.BUCKET.get(key);
+  const size = c.req.query("size");
+  // Prefer the resized derivative; fall back to the original upload when the
+  // derivative cannot be produced (e.g. unreadable source image).
+  const derivative =
+    size === "card" || size === "hero"
+      ? await getOrCreatePreviewDerivative(c, productId, key, size)
+      : null;
+
+  const object = derivative ?? (await c.env.BUCKET.get(key));
   if (!object) return c.json({ error: "Preview not found" }, 404);
   return c.body(object.body, 200, {
     "content-type": object.httpMetadata?.contentType ?? "application/octet-stream",

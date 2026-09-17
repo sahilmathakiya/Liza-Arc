@@ -11,6 +11,8 @@ import {
   contentTypeFor,
   deleteAssets,
   elevationThumbKey,
+  interiorPreviewCardKey,
+  interiorPreviewHeroKey,
   putAsset,
   resolveUploadExtension,
   type AssetKind,
@@ -35,7 +37,13 @@ import {
   updateInteriorPlanProduct,
 } from "../../services/products";
 import type { ProductWithDetails } from "../../services/products";
-import { ThumbnailError, createBlurredThumbnail } from "../../services/thumbnail";
+import {
+  INTERIOR_PREVIEW_CARD_MAX_DIMENSION,
+  INTERIOR_PREVIEW_HERO_MAX_DIMENSION,
+  ThumbnailError,
+  createBlurredThumbnail,
+  createResizedWebp,
+} from "../../services/thumbnail";
 import { z } from "zod";
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -166,6 +174,20 @@ adminProductsRouter.post("/:id/assets", async (c) => {
     }
   }
 
+  if (assetKind === "preview") {
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      await putAsset(c.env.BUCKET, key, bytes, contentTypeFor(ext));
+      const oldKey = await setAssetKey(prisma, product, assetKind, key);
+      if (oldKey && oldKey !== key) await deleteAssets(c.env.BUCKET, [oldKey]);
+
+      await generateInteriorPreviewDerivatives(c, product, bytes);
+      return c.json({ key });
+    } catch {
+      return c.json({ error: "Failed to store the file" }, 500);
+    }
+  }
+
   try {
     await putAsset(c.env.BUCKET, key, file.stream(), contentTypeFor(ext));
     const oldKey = await setAssetKey(prisma, product, assetKind, key);
@@ -200,6 +222,32 @@ async function generateElevationThumbnail(
       message: error instanceof Error ? error.message : "unknown error",
     });
     return null;
+  }
+}
+
+/**
+ * Generates the resized storefront preview derivatives (card + hero) for an
+ * interior plan preview image. Failures are non-fatal: the raw upload stays
+ * valid and the asset endpoint falls back to it.
+ */
+async function generateInteriorPreviewDerivatives(
+  c: Context<{ Bindings: Env; Variables: { session: Session } }>,
+  product: ProductWithDetails,
+  source: Uint8Array,
+): Promise<void> {
+  try {
+    const kind = detectFileKind(source);
+    const card = createResizedWebp(source, kind, INTERIOR_PREVIEW_CARD_MAX_DIMENSION);
+    const hero = createResizedWebp(source, kind, INTERIOR_PREVIEW_HERO_MAX_DIMENSION);
+    await Promise.all([
+      putAsset(c.env.BUCKET, interiorPreviewCardKey(product.id), card.bytes, card.contentType),
+      putAsset(c.env.BUCKET, interiorPreviewHeroKey(product.id), hero.bytes, hero.contentType),
+    ]);
+  } catch (error) {
+    console.error("Failed to generate interior preview derivatives", {
+      productId: product.id,
+      message: error instanceof Error ? error.message : "unknown error",
+    });
   }
 }
 

@@ -13,9 +13,10 @@ export function FloorPlanCard({ product }: { product: FloorPlanPublic }) {
       <div className="h-40 overflow-hidden border-b border-line bg-surface-muted">
         {product.hasThumbnail ? (
           <img
-            src={floorPlanThumbnailUrl(product.id)}
+            src={floorPlanThumbnailUrl(product.id, product.thumbnailVersion)}
             alt={`Elevation preview of ${product.name}`}
             loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover"
           />
         ) : (
