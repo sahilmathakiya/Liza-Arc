@@ -21,11 +21,11 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
           activeOptions={item.exact ? { exact: true } : undefined}
           activeProps={{
             className:
-              'whitespace-nowrap rounded-md bg-surface-muted px-3 py-2 text-sm font-medium text-ink',
+              'whitespace-nowrap border-l-2 border-brand px-3 py-2 text-sm font-medium text-brand',
           }}
           inactiveProps={{
             className:
-              'whitespace-nowrap rounded-md px-3 py-2 text-sm text-ink-soft transition hover:bg-surface-muted hover:text-ink',
+              'whitespace-nowrap px-3 py-2 text-sm text-ink-soft transition hover:text-ink',
           }}
         >
           {item.label}
@@ -38,18 +38,18 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
 export function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-canvas lg:flex">
-      <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-56 lg:flex-col lg:border-r lg:border-line lg:bg-surface">
+      <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-64 lg:flex-col lg:border-r lg:border-line lg:bg-surface">
         <div className="border-b border-line px-4 py-5">
-          <p className="text-sm font-semibold tracking-tight text-ink">liza-arch</p>
-          <p className="mt-0.5 text-xs text-ink-faint">Admin console</p>
+          <p className="flex items-center gap-2 text-sm font-black uppercase tracking-[1.4px] text-ink"><span className="h-2.5 w-2.5 bg-brand" aria-hidden />liza-arch</p>
+          <p className="mt-2 text-[11px] font-semibold uppercase tracking-[1.2px] text-brand">Admin console</p>
         </div>
-        <nav aria-label="Admin" className="flex flex-1 flex-col gap-1 p-3">
+        <nav aria-label="Admin" className="flex flex-1 flex-col gap-2 p-4">
           <NavItems />
         </nav>
         <div className="border-t border-line p-3">
           <Link
             to="/"
-            className="block rounded-md px-3 py-2 text-sm text-ink-soft transition hover:bg-surface-muted hover:text-ink"
+            className="block px-3 py-2 text-sm text-ink-soft transition hover:text-ink"
           >
             View store
           </Link>
@@ -57,16 +57,16 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 border-b border-line bg-surface lg:hidden">
-          <div className="flex items-center justify-between px-4 pt-3">
-            <p className="text-sm font-semibold tracking-tight text-ink">liza-arch admin</p>
-            <Link to="/" className="text-xs text-ink-soft transition hover:text-ink">
+          <header className="sticky top-0 z-30 border-b border-line bg-surface lg:hidden">
+          <div className="flex items-center justify-between px-4 py-4">
+            <p className="text-sm font-black uppercase tracking-[1.2px] text-ink">liza-arch <span className="text-brand">/ admin</span></p>
+            <Link to="/" className="text-sm text-ink-soft transition hover:text-ink">
               View store
             </Link>
           </div>
           <nav
             aria-label="Admin"
-            className="flex gap-1 overflow-x-auto px-3 py-2"
+            className="flex gap-3 overflow-x-auto border-t border-line px-4 py-3"
           >
             <NavItems />
           </nav>

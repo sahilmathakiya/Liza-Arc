@@ -2,6 +2,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { Badge, statusTone } from '#/components/ui/badge'
 import { EmptyState } from '#/components/ui/feedback'
 import { Container, PageHeader } from '#/components/ui/layout'
+import { Pagination, totalPagesFor } from '#/components/ui/pagination'
 import { listAdminOrders } from '#/lib/orders'
 import type { OrderStatus } from '#/lib/orders'
 import { formatPrice } from '#/lib/products'
@@ -32,12 +33,14 @@ export const Route = createFileRoute('/admin/orders/')({
 function AdminOrdersPage() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
-  const { orders, total } = Route.useLoaderData()
+  const { orders, total, limit } = Route.useLoaderData()
+  const page = search.page ?? 1
+  const totalPages = totalPagesFor(total, limit)
 
   const chipClass = (active: boolean) =>
-    active
-      ? 'rounded-full bg-brand px-4 py-1.5 text-sm font-medium text-brand-foreground'
-      : 'rounded-full border border-line bg-surface px-4 py-1.5 text-sm text-ink-soft transition hover:border-line-strong hover:text-ink'
+       active
+       ? 'rounded-full border border-brand/50 bg-brand/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand'
+       : 'rounded-full border border-line bg-surface px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-ink-soft transition hover:border-line-strong hover:text-brand'
 
   return (
     <Container className="py-8">
@@ -63,10 +66,10 @@ function AdminOrdersPage() {
         {orders.length === 0 ? (
           <EmptyState title="No orders found" message="Orders will appear here as customers check out." />
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+           <div className="overflow-x-auto rounded-[8px] border border-line bg-surface">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-line text-xs uppercase tracking-wide text-ink-faint">
+                 <tr className="border-b border-line text-[11px] font-semibold uppercase tracking-[1.2px] text-ink-faint">
                   <th scope="col" className="px-4 py-3 font-medium">Order</th>
                   <th scope="col" className="px-4 py-3 font-medium">Customer</th>
                   <th scope="col" className="px-4 py-3 font-medium">Items</th>
@@ -106,6 +109,15 @@ function AdminOrdersPage() {
           </div>
         )}
       </div>
+
+      <Pagination
+        className="mt-6"
+        page={page}
+        totalPages={totalPages}
+        onPageChange={(next) =>
+          navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) })
+        }
+      />
     </Container>
   )
 }

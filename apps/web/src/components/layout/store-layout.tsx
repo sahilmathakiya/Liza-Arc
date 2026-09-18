@@ -14,7 +14,8 @@ const NAV_ITEMS = [
 
 function Wordmark() {
   return (
-    <Link to="/" className="text-base font-semibold tracking-tight text-ink">
+    <Link to="/" className="group inline-flex items-center gap-2 text-sm font-black uppercase tracking-[1.4px] text-ink">
+      <span className="h-2.5 w-2.5 bg-brand transition-transform group-hover:rotate-45" aria-hidden />
       liza-arch
     </Link>
   )
@@ -34,15 +35,15 @@ function StoreHeader() {
     }
   }, [])
 
-  const activeNavClass = 'rounded-md px-3 py-2 text-sm font-medium text-ink transition'
-  const inactiveNavClass = 'rounded-md px-3 py-2 text-sm text-ink-soft transition hover:text-ink'
+  const activeNavClass = 'px-2 py-1.5 text-sm font-medium text-brand transition [border-bottom:1px_solid_var(--brand)]'
+  const inactiveNavClass = 'px-2 py-1.5 text-sm text-ink-soft transition hover:text-ink'
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface">
-      <Container className="flex h-16 items-center justify-between gap-4">
-        <div className="flex items-center gap-8">
+    <header className="sticky top-0 z-40 border-b border-line bg-canvas/95 backdrop-blur">
+      <Container className="flex h-[72px] items-center justify-between gap-6">
+        <div className="flex min-w-0 items-center gap-10">
           <Wordmark />
-          <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
+          <nav aria-label="Primary" className="hidden items-center gap-5 md:flex">
             {NAV_ITEMS.map((item) => (
               <Link
                 key={item.to}
@@ -56,7 +57,7 @@ function StoreHeader() {
           </nav>
         </div>
 
-        <div className="hidden items-center gap-1 md:flex">
+        <div className="hidden items-center gap-4 md:flex">
           {session ? (
             <>
               <Link to="/purchases" activeProps={{ className: activeNavClass }} inactiveProps={{ className: inactiveNavClass }}>
@@ -69,53 +70,53 @@ function StoreHeader() {
           ) : (
             <Link
               to="/login"
-              className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-brand-foreground transition hover:bg-brand/85"
+              className="rounded-[6px] border border-brand bg-brand px-4 py-2 text-xs font-bold uppercase tracking-[1px] !text-brand-foreground transition hover:bg-active"
             >
               Sign in
             </Link>
           )}
         </div>
 
-        <button
+          <button
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
           aria-expanded={menuOpen}
           aria-label="Toggle navigation menu"
-          className="rounded-md p-2 text-ink transition hover:bg-surface-muted md:hidden"
+           className="rounded-[4px] p-2 text-ink transition hover:text-brand md:hidden"
         >
-          <span aria-hidden className="block h-0.5 w-5 bg-ink" />
-          <span aria-hidden className="mt-1 block h-0.5 w-5 bg-ink" />
-          <span aria-hidden className="mt-1 block h-0.5 w-5 bg-ink" />
+           <span aria-hidden className="block h-px w-5 bg-ink" />
+           <span aria-hidden className="mt-1.5 block h-px w-5 bg-ink" />
+           <span aria-hidden className="mt-1.5 block h-px w-5 bg-ink" />
         </button>
       </Container>
 
-      {menuOpen && (
-        <nav aria-label="Mobile" className="border-t border-line bg-surface md:hidden">
-          <Container className="flex flex-col py-2">
-            {NAV_ITEMS.map((item) => (
+       {menuOpen && (
+          <nav aria-label="Mobile" className="border-t border-line bg-surface md:hidden">
+           <Container className="flex flex-col py-5">
+             {NAV_ITEMS.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
                 onClick={() => setMenuOpen(false)}
-                className="rounded-md px-3 py-2.5 text-sm text-ink-soft transition hover:bg-surface-muted hover:text-ink"
+                  className="border-b border-transparent px-1 py-3 text-sm text-ink-soft transition hover:border-brand hover:text-ink"
               >
                 {item.label}
               </Link>
             ))}
-            <div className="mt-1 border-t border-line pt-2">
+             <div className="mt-4 border-t border-line pt-4">
               {session ? (
                 <>
                   <Link
                     to="/purchases"
                     onClick={() => setMenuOpen(false)}
-                    className="rounded-md px-3 py-2.5 text-sm text-ink-soft transition hover:bg-surface-muted hover:text-ink"
+                    className="border-b border-transparent px-1 py-3 text-sm text-ink-soft transition hover:border-brand hover:text-ink"
                   >
                     My purchases
                   </Link>
                   <Link
                     to="/dashboard"
                     onClick={() => setMenuOpen(false)}
-                    className="rounded-md px-3 py-2.5 text-sm text-ink-soft transition hover:bg-surface-muted hover:text-ink"
+                    className="border-b border-transparent px-1 py-3 text-sm text-ink-soft transition hover:border-brand hover:text-ink"
                   >
                     Account
                   </Link>
@@ -124,7 +125,7 @@ function StoreHeader() {
                 <Link
                   to="/login"
                   onClick={() => setMenuOpen(false)}
-                  className="rounded-md px-3 py-2.5 text-sm font-medium text-ink transition hover:bg-surface-muted"
+                  className="mt-2 inline-flex w-fit rounded-[6px] bg-brand px-4 py-2.5 text-xs font-bold uppercase tracking-[1px] !text-brand-foreground transition hover:bg-active"
                 >
                   Sign in
                 </Link>
@@ -142,47 +143,47 @@ function StoreFooter() {
     <footer className="mt-auto border-t border-line bg-surface">
       <Container className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div className="max-w-xs">
-          <p className="text-base font-semibold tracking-tight text-ink">liza-arch</p>
+           <p className="text-sm font-black uppercase tracking-[1.4px] text-brand">liza-arch</p>
           <p className="mt-3 text-sm leading-relaxed text-ink-soft">
             Floor plans and interior plans, drawn by architects and delivered instantly as
             downloadable files.
           </p>
         </div>
         <nav aria-label="Browse">
-          <p className="text-sm font-medium text-ink">Browse</p>
+           <p className="text-xs font-semibold uppercase tracking-[1.4px] text-ink">Browse</p>
           <ul className="mt-3 space-y-2 text-sm text-ink-soft">
-            <li>
-              <Link to="/floor-plans" className="transition hover:text-ink">
+             <li>
+               <Link to="/floor-plans" className="transition hover:text-brand">
                 Floor plans
               </Link>
             </li>
             <li>
-              <Link to="/interiors" className="transition hover:text-ink">
+               <Link to="/interiors" className="transition hover:text-brand">
                 Interior plans
               </Link>
             </li>
           </ul>
         </nav>
         <nav aria-label="Studio">
-          <p className="text-sm font-medium text-ink">Studio</p>
+           <p className="text-xs font-semibold uppercase tracking-[1.4px] text-ink">Studio</p>
           <ul className="mt-3 space-y-2 text-sm text-ink-soft">
             <li>
-              <Link to="/about" className="transition hover:text-ink">
+               <Link to="/about" className="transition hover:text-brand">
                 About us
               </Link>
             </li>
             <li>
-              <Link to="/contact" className="transition hover:text-ink">
+               <Link to="/contact" className="transition hover:text-brand">
                 Contact
               </Link>
             </li>
           </ul>
         </nav>
         <div>
-          <p className="text-sm font-medium text-ink">Get in touch</p>
+           <p className="text-xs font-semibold uppercase tracking-[1.4px] text-ink">Get in touch</p>
           <ul className="mt-3 space-y-2 text-sm text-ink-soft">
-            <li>
-              <a href="mailto:hello@lizaarch.in" className="transition hover:text-ink">
+             <li>
+               <a href="mailto:hello@lizaarch.in" className="transition hover:text-brand">
                 hello@lizaarch.in
               </a>
             </li>

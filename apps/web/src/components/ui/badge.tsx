@@ -3,8 +3,8 @@ import type { ReactNode } from 'react'
 export type BadgeTone = 'neutral' | 'dark' | 'outline'
 
 const TONES: Record<BadgeTone, string> = {
-  neutral: 'bg-surface-muted text-ink-soft',
-  dark: 'bg-brand text-brand-foreground',
+  neutral: 'border border-line bg-surface-muted text-ink-soft',
+  dark: 'border border-brand/40 bg-brand/10 text-brand',
   outline: 'border border-line-strong text-ink-soft',
 }
 
@@ -17,7 +17,7 @@ export function Badge({
 }) {
   return (
     <span
-      className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${TONES[tone]}`}
+      className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${TONES[tone]}`}
     >
       {children}
     </span>

@@ -42,12 +42,13 @@ function RootPending() {
 
 function RootNotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 p-8 text-center">
-      <h1 className="text-2xl font-bold text-neutral-900">Page not found</h1>
-      <p className="mt-2 text-sm text-neutral-500">The page you are looking for does not exist.</p>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-canvas p-8 text-center">
+      <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">404 / not found</p>
+      <h1 className="mt-4 text-4xl font-black text-ink">Page not found</h1>
+      <p className="mt-2 text-sm text-ink-soft">The page you are looking for does not exist.</p>
       <a
         href="/"
-        className="mt-6 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700"
+        className="mt-6 rounded-[6px] border border-brand bg-brand px-4 py-2 text-sm font-bold !text-brand-foreground transition hover:bg-active"
       >
         Go home
       </a>
@@ -55,16 +56,17 @@ function RootNotFound() {
   )
 }
 
-function RootError({ error }: { error: Error }) {
+function RootError({ error }: { error: unknown }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 p-8 text-center">
-      <h1 className="text-2xl font-bold text-neutral-900">Something went wrong</h1>
-      <p className="mt-2 max-w-md text-sm text-neutral-500">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-canvas p-8 text-center">
+      <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">500 / error</p>
+      <h1 className="mt-4 text-4xl font-black text-ink">Something went wrong</h1>
+      <p className="mt-2 max-w-md text-sm text-ink-soft">
         {error instanceof Error ? error.message : 'An unexpected error occurred.'}
       </p>
       <button
         onClick={() => window.location.reload()}
-        className="mt-6 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700"
+        className="mt-6 rounded-[6px] border border-brand bg-brand px-4 py-2 text-sm font-bold !text-brand-foreground transition hover:bg-active"
       >
         Reload page
       </button>

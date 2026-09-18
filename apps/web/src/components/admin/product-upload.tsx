@@ -40,6 +40,11 @@ export function ProductUpload({
       return [
         { kind: 'floor-plan' as const, label: ASSET_KIND_LABELS['floor-plan'], key: selected.floorPlan.floorPlanKey },
         { kind: 'elevation' as const, label: ASSET_KIND_LABELS.elevation, key: selected.floorPlan.elevationKey },
+        {
+          kind: 'thumbnail' as const,
+          label: 'Elevation thumbnail',
+          key: selected.floorPlan.elevationThumbKey,
+        },
       ]
     }
     if (selected.type === 'INTERIOR_PLAN' && selected.interiorPlan) {
@@ -68,8 +73,12 @@ export function ProductUpload({
     }
     startTransition(async () => {
       try {
-        const { key } = await uploadAsset(selected.id, activeKind, file)
-        setMessage(`Uploaded to ${key}`)
+        const { key, thumbnailKey } = await uploadAsset(selected.id, activeKind, file)
+        setMessage(
+          activeKind === 'elevation' && !thumbnailKey
+            ? `Uploaded to ${key} — thumbnail generation failed; regenerate it from the products list.`
+            : `Uploaded to ${key}`,
+        )
         if (fileInput) fileInput.value = ''
         onUploaded()
       } catch (e) {
@@ -148,7 +157,7 @@ export function ProductUpload({
                 type="file"
                 required
                 accept={activeKind ? KIND_ACCEPT[activeKind] : undefined}
-                className="w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink-soft file:mr-3 file:rounded-md file:border-0 file:bg-brand file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-brand-foreground hover:file:bg-brand/85"
+                className="w-full rounded-[6px] border border-line-strong bg-surface-muted px-3 py-2 text-sm text-ink-soft file:mr-3 file:rounded-[6px] file:border-0 file:bg-brand file:px-3 file:py-1.5 file:text-xs file:font-medium file:!text-brand-foreground hover:file:bg-active"
               />
             </div>
           </div>

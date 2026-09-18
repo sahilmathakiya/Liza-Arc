@@ -9,9 +9,10 @@ interface AuthCardProps {
 
 export function AuthCard({ title, description, children, footer }: AuthCardProps) {
   return (
-    <div className="w-full rounded-lg border border-line bg-surface p-8">
-      <h1 className="text-2xl font-semibold tracking-tight text-ink">{title}</h1>
-      <p className="mt-1 text-sm text-ink-soft">{description}</p>
+    <div className="relative w-full rounded-[8px] border border-line bg-surface p-8 shadow-[0_4px_25px_rgba(0,0,0,.14)_inset]">
+      <div className="mb-8 flex items-center gap-2 text-xs font-black uppercase tracking-[1.4px] text-brand"><span className="h-2 w-2 bg-brand" aria-hidden /> liza-arch</div>
+      <h1 className="text-3xl font-black tracking-tight text-ink">{title}</h1>
+      <p className="mt-2 text-sm leading-relaxed text-ink-soft">{description}</p>
       <div className="mt-6">{children}</div>
       <div className="mt-6 text-center text-sm text-ink-soft">{footer}</div>
     </div>

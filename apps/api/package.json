@@ -13,11 +13,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@cf-wasm/photon": "^0.4.0",
     "@neondatabase/serverless": "^1.1.0",
     "@prisma/adapter-neon": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "better-auth": "^1.7.2",
+    "fflate": "^0.8.3",
     "hono": "^4.13.5",
+    "pdf-lib": "^1.17.1",
     "zod": "^4.5.4"
   },
   "devDependencies": {

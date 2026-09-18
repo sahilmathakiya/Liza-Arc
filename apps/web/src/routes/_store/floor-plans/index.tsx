@@ -1,8 +1,10 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { CatalogSkeleton } from '#/components/store/catalog-skeleton'
 import { FloorPlanCard } from '#/components/store/floor-plan-card'
 import { FloorPlanFilters } from '#/components/store/floor-plan-filters'
 import { EmptyState } from '#/components/ui/feedback'
 import { Container, PageHeader } from '#/components/ui/layout'
+import { Pagination, totalPagesFor } from '#/components/ui/pagination'
 import type { FloorPlanSearch } from '#/lib/products'
 import { listPublicFloorPlans } from '#/lib/products'
 
@@ -33,12 +35,17 @@ export const Route = createFileRoute('/_store/floor-plans/')({
   validateSearch: validateFloorPlanSearch,
   loaderDeps: ({ search }) => ({ search }),
   loader: ({ deps: { search } }) => listPublicFloorPlans(search),
+  pendingMs: 200,
+  pendingComponent: CatalogSkeleton,
   component: FloorPlansPage,
 })
 
 function FloorPlansPage() {
   const search = Route.useSearch()
-  const { products, total } = Route.useLoaderData()
+  const navigate = Route.useNavigate()
+  const { products, total, limit } = Route.useLoaderData()
+  const page = search.page ?? 1
+  const totalPages = totalPagesFor(total, limit)
 
   return (
     <Container className="py-10">
@@ -56,7 +63,7 @@ function FloorPlansPage() {
       />
 
       <div className="mt-6">
-        <FloorPlanFilters search={search} />
+        <FloorPlanFilters key={JSON.stringify(search)} search={search} />
       </div>
 
       {products.length === 0 ? (
@@ -67,11 +74,21 @@ function FloorPlansPage() {
           />
         </div>
       ) : (
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => (
-            <FloorPlanCard key={product.id} product={product} />
-          ))}
-        </div>
+        <>
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {products.map((product) => (
+              <FloorPlanCard key={product.id} product={product} />
+            ))}
+          </div>
+          <Pagination
+            className="mt-8"
+            page={page}
+            totalPages={totalPages}
+            onPageChange={(next) =>
+              navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) })
+            }
+          />
+        </>
       )}
     </Container>
   )

@@ -48,9 +48,11 @@ function InteriorDetailPage() {
           <div className="overflow-hidden rounded-lg border border-line bg-surface-muted">
             {interiorPlan.hasPreview ? (
               <img
-                src={interiorPreviewUrl(product.id)}
+                src={interiorPreviewUrl(product.id, 'hero')}
                 alt={`Preview of ${product.name}`}
-                className="max-h-[28rem] w-full object-cover"
+                decoding="async"
+                fetchPriority="high"
+                className="aspect-[4/3] w-full object-cover"
               />
             ) : (
               <div className="flex h-72 items-center justify-center text-sm text-ink-faint">

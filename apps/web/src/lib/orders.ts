@@ -15,6 +15,7 @@ export interface OrderItemView {
   entitlementType: EntitlementType
   priceCents: number
   product: OrderProductRef
+  accessExpiresAt: string | null
 }
 
 export interface OrderView {
@@ -41,6 +42,7 @@ export interface EntitlementView {
   id: string
   type: EntitlementType
   createdAt: string
+  expiresAt: string | null
   downloadKind: AssetKind
   product: OrderProductRef
 }
@@ -71,6 +73,7 @@ export interface AdminEntitlementRow {
   id: string
   type: EntitlementType
   createdAt: string
+  expiresAt: string | null
   product: OrderProductRef
 }
 

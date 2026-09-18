@@ -29,7 +29,7 @@ app.use(
     origin: (origin, c) => (isAllowedOrigin(origin, c.env.WEB_URL) ? origin : null),
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    exposeHeaders: ["Set-Cookie"],
+    exposeHeaders: ["Set-Cookie", "Content-Disposition"],
     credentials: true,
   }),
 );

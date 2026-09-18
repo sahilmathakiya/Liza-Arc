@@ -8,9 +8,11 @@ import type { Product } from '#/lib/products'
 import {
   INTERIOR_CATEGORY_LABELS,
   deleteProduct,
+  floorPlanThumbnailUrl,
   formatPrice,
   interiorPreviewUrl,
   paidAssetUrl,
+  regenerateThumbnail,
   updateProduct,
 } from '#/lib/products'
 
@@ -57,6 +59,7 @@ function AssetDots({ items }: { items: { label: string; present: boolean; href?:
 export function ProductList({ products }: { products: Product[] }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
 
   async function togglePublished(product: Product) {
@@ -64,6 +67,21 @@ export function ProductList({ products }: { products: Product[] }) {
     setError(null)
     try {
       await updateProduct(product.id, { published: !product.published })
+      await router.invalidate()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Something went wrong')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  async function handleRegenerateThumbnail(product: Product) {
+    setBusyId(product.id)
+    setError(null)
+    setNotice(null)
+    try {
+      await regenerateThumbnail(product.id)
+      setNotice(`Thumbnail regenerated for "${product.name}".`)
       await router.invalidate()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong')
@@ -94,7 +112,7 @@ export function ProductList({ products }: { products: Product[] }) {
         action={
           <Link
             to="/admin/upload"
-            className="inline-flex h-10 items-center rounded-md bg-brand px-4 text-sm font-medium text-brand-foreground transition hover:bg-brand/85"
+             className="inline-flex h-10 items-center rounded-[6px] border border-brand bg-brand px-4 text-xs font-bold uppercase tracking-wide !text-brand-foreground transition hover:bg-active"
           >
             Upload product
           </Link>
@@ -105,10 +123,10 @@ export function ProductList({ products }: { products: Product[] }) {
 
   return (
     <div>
-      <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+       <div className="overflow-x-auto rounded-[8px] border border-line bg-surface">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-line text-xs uppercase tracking-wide text-ink-faint">
+             <tr className="border-b border-line text-[11px] font-semibold uppercase tracking-[1.2px] text-ink-faint">
               <th scope="col" className="px-4 py-3 font-medium">Product</th>
               <th scope="col" className="px-4 py-3 font-medium">Details</th>
               <th scope="col" className="px-4 py-3 font-medium">Prices</th>
@@ -171,6 +189,13 @@ export function ProductList({ products }: { products: Product[] }) {
                             present: Boolean(floorPlan.elevationKey),
                             href: floorPlan.elevationKey ? paidAssetUrl(product.id, 'elevation') : undefined,
                           },
+                          {
+                            label: 'Thumb',
+                            present: Boolean(floorPlan.elevationThumbKey),
+                            href: floorPlan.elevationThumbKey
+                              ? floorPlanThumbnailUrl(product.id, floorPlan.elevationThumbKey)
+                              : undefined,
+                          },
                         ]}
                       />
                     ) : interiorPlan ? (
@@ -208,6 +233,16 @@ export function ProductList({ products }: { products: Product[] }) {
                           Complete upload
                         </Link>
                       )}
+                      {product.type === 'FLOOR_PLAN' && floorPlan?.elevationKey && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          disabled={busy}
+                          onClick={() => handleRegenerateThumbnail(product)}
+                        >
+                          Regenerate thumb
+                        </Button>
+                      )}
                       <Button size="sm" variant="secondary" disabled={busy} onClick={() => togglePublished(product)}>
                         {product.published ? 'Unpublish' : 'Publish'}
                       </Button>
@@ -223,6 +258,7 @@ export function ProductList({ products }: { products: Product[] }) {
         </table>
       </div>
       <div className="mt-3">
+        {notice && <p className="mb-2 text-sm text-ink-soft">{notice}</p>}
         <FormError message={error} />
       </div>
     </div>

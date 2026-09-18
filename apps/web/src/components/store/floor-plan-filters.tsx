@@ -51,7 +51,7 @@ export function FloorPlanFilters({ search }: { search: FloorPlanSearch }) {
   }
 
   return (
-    <div className="rounded-lg border border-line bg-surface p-5">
+    <div className="rounded-[8px] border border-line bg-surface p-5 shadow-[0_4px_25px_rgba(0,0,0,.14)_inset]">
       <div className="grid gap-4 sm:grid-cols-3">
         <div>
           <Label htmlFor="filter-length">Length (ft)</Label>

@@ -1,4 +1,13 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import elevationDetail from '../../../assets/elevation-detail.webp'
+import floorPlanDetail from '../../../assets/floor-plan-detail.webp'
+import heroExteriorDesktop from '../../../assets/hero-exterior-desktop.webp'
+import heroExteriorMobile from '../../../assets/hero-exterior-mobile.webp'
+import homeDetailWindow from '../../../assets/home-detail-window.webp'
+import interiorMaterialDetail from '../../../assets/interior-material-detail.webp'
+import materialBoard from '../../../assets/material-board.webp'
+import siteContext from '../../../assets/site-context.webp'
+import studioDesk from '../../../assets/studio-desk.webp'
 import { FloorPlanCard } from '#/components/store/floor-plan-card'
 import { InteriorCard } from '#/components/store/interior-card'
 import { buttonClasses } from '#/components/ui/button'
@@ -26,47 +35,6 @@ export const Route = createFileRoute('/_store/')({
   component: HomePage,
 })
 
-function BlueprintIllustration() {
-  return (
-    <svg
-      viewBox="0 0 400 320"
-      role="img"
-      aria-label="Illustration of a floor plan drawing"
-      className="h-auto w-full"
-    >
-      <rect x="40" y="30" width="320" height="240" fill="none" stroke="var(--ink)" strokeWidth="2" />
-      <line x1="200" y1="30" x2="200" y2="170" stroke="var(--ink)" strokeWidth="1.5" />
-      <line x1="40" y1="170" x2="290" y2="170" stroke="var(--ink)" strokeWidth="1.5" />
-      <line x1="290" y1="170" x2="290" y2="270" stroke="var(--ink)" strokeWidth="1.5" />
-      <rect x="60" y="50" width="60" height="40" fill="none" stroke="var(--ink-faint)" strokeWidth="1" />
-      <rect x="230" y="60" width="90" height="60" fill="none" stroke="var(--ink-faint)" strokeWidth="1" />
-      <rect x="70" y="200" width="80" height="50" fill="none" stroke="var(--ink-faint)" strokeWidth="1" />
-      <path d="M 200 170 A 40 40 0 0 1 240 210" fill="none" stroke="var(--ink-soft)" strokeWidth="1" />
-      <line x1="200" y1="170" x2="200" y2="210" stroke="var(--ink-soft)" strokeWidth="1" />
-      <path d="M 290 120 A 30 30 0 0 1 320 150" fill="none" stroke="var(--ink-soft)" strokeWidth="1" />
-      <line x1="40" y1="292" x2="360" y2="292" stroke="var(--ink-faint)" strokeWidth="1" />
-      <line x1="40" y1="286" x2="40" y2="298" stroke="var(--ink-faint)" strokeWidth="1" />
-      <line x1="360" y1="286" x2="360" y2="298" stroke="var(--ink-faint)" strokeWidth="1" />
-      <text x="200" y="310" textAnchor="middle" fontSize="11" fill="var(--ink-soft)">
-        60 ft
-      </text>
-      <line x1="18" y1="30" x2="18" y2="270" stroke="var(--ink-faint)" strokeWidth="1" />
-      <line x1="12" y1="30" x2="24" y2="30" stroke="var(--ink-faint)" strokeWidth="1" />
-      <line x1="12" y1="270" x2="24" y2="270" stroke="var(--ink-faint)" strokeWidth="1" />
-      <text
-        x="8"
-        y="150"
-        fontSize="11"
-        fill="var(--ink-soft)"
-        textAnchor="middle"
-        transform="rotate(-90 8 150)"
-      >
-        40 ft
-      </text>
-    </svg>
-  )
-}
-
 const STEPS = [
   {
     title: 'Browse',
@@ -91,33 +59,140 @@ function HomePage() {
 
   return (
     <div>
-      <section className="border-b border-line bg-surface">
-        <Container className="grid items-center gap-12 py-16 lg:grid-cols-2 lg:py-24">
-          <div>
-            <p className="text-sm font-medium text-ink-soft">
-              Architect-drawn digital plans
+      <section className="relative min-h-[min(820px,calc(100svh-64px))] overflow-hidden border-b border-line">
+        <picture className="absolute inset-0">
+          <source media="(max-width: 639px)" srcSet={heroExteriorMobile} />
+          <img
+            src={heroExteriorDesktop}
+            alt="Warmly lit contemporary home exterior at dusk"
+            width="2400"
+            height="1600"
+            fetchPriority="high"
+            decoding="async"
+            className="h-full w-full object-cover object-center"
+          />
+        </picture>
+        <div className="absolute inset-0 bg-gradient-to-r from-canvas via-canvas/65 to-transparent" aria-hidden />
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-canvas/65 to-transparent" aria-hidden />
+        <Container className="relative flex min-h-[min(820px,calc(100svh-64px))] items-end pb-12 pt-28 sm:pb-16 lg:pb-20">
+          <div className="max-w-2xl">
+            <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[1.4px] text-brand">
+              <span className="h-px w-8 bg-brand" aria-hidden /> Architect-drawn digital plans
             </p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
-              Plans for your next build, ready to download.
+            <h1 className="mt-6 max-w-3xl text-5xl font-black leading-[.94] tracking-[-.055em] text-ink sm:text-7xl lg:text-[clamp(4.5rem,7vw,7.5rem)]">
+              Draw it once.<br /><span className="text-brand">Build it right.</span>
             </h1>
-            <p className="mt-4 max-w-lg text-base leading-relaxed text-ink-soft">
-              Browse floor plans and interior working drawings, purchase exactly what you need
-              and download the files instantly — no waiting, no shipping.
+            <p className="mt-7 max-w-lg text-lg leading-relaxed text-ink/80 sm:text-xl">
+              Floor plans and interior drawings for people making a place of their own.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-9 flex flex-wrap gap-3">
               <Link to="/floor-plans" className={buttonClasses('primary', 'lg')}>
-                Browse floor plans
+                Explore floor plans
               </Link>
-              <Link to="/interiors" className={buttonClasses('secondary', 'lg')}>
-                Browse interior plans
+              <Link to="/interiors" className={buttonClasses('ghost', 'lg', 'border border-olive')}>
+                See interior plans <span aria-hidden>↗</span>
               </Link>
             </div>
-            <p className="mt-6 text-sm text-ink-faint">
-              Instant digital delivery · Lifetime access to your purchases
+          </div>
+        </Container>
+      </section>
+
+      <section className="border-b border-line bg-surface">
+        <Container className="grid gap-10 py-20 lg:grid-cols-12 lg:items-center lg:gap-16 lg:py-28">
+          <div className="relative lg:col-span-7">
+            <img
+              src={floorPlanDetail}
+              alt="Detailed architectural floor plan drawing"
+              width="1600"
+              height="1200"
+              loading="lazy"
+              decoding="async"
+              className="aspect-[4/3] w-full object-cover"
+            />
+          </div>
+          <div className="lg:col-span-5 lg:pl-4">
+            <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">Drawings with direction</p>
+            <h2 className="mt-4 max-w-lg text-3xl font-black leading-tight tracking-tight text-ink sm:text-5xl">
+              The details are where a home begins to feel like yours.
+            </h2>
+            <p className="mt-5 max-w-md text-base leading-relaxed text-ink-soft">
+              Clear dimensions, considered rooms, and enough detail to have a better conversation on site.
+            </p>
+            <div className="mt-8 border-t border-line pt-5 text-xs font-semibold uppercase tracking-[1.1px] text-ink-faint">
+              Floor plans / elevations / interiors
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      <section className="border-b border-line bg-surface">
+        <Container className="grid gap-10 py-20 lg:grid-cols-12 lg:items-center lg:gap-16 lg:py-28">
+          <div className="relative lg:col-span-7">
+            <img
+              src={interiorMaterialDetail}
+              alt="Warm architectural material detail with timber joinery"
+              width="1600"
+              height="1200"
+              loading="lazy"
+              decoding="async"
+              className="aspect-[4/3] w-full object-cover"
+            />
+            <div className="absolute -bottom-7 right-4 w-36 bg-surface p-2 sm:right-10 sm:w-48">
+              <img
+                src={elevationDetail}
+                alt="Architectural elevation drawing detail"
+                width="1600"
+                height="1200"
+                loading="lazy"
+                decoding="async"
+                className="aspect-square w-full object-cover"
+              />
+            </div>
+          </div>
+          <div className="lg:col-span-5 lg:pl-4">
+            <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">Material language</p>
+            <h2 className="mt-4 text-3xl font-black leading-tight tracking-tight text-ink sm:text-4xl">
+              A plan is only the beginning of how a room feels.
+            </h2>
+            <p className="mt-5 max-w-md text-base leading-relaxed text-ink-soft">
+              Look closely and the useful decisions are there: openings, thresholds, light, and the quiet relationship between one room and the next.
+            </p>
+            <img
+              src={homeDetailWindow}
+              alt="Architectural window and stair detail"
+              width="800"
+              height="1000"
+              loading="lazy"
+              decoding="async"
+              className="mt-8 aspect-[4/3] w-full object-cover"
+            />
+          </div>
+        </Container>
+      </section>
+
+      <section className="border-b border-line">
+        <Container className="grid gap-10 py-20 lg:grid-cols-12 lg:items-end lg:gap-16 lg:py-28">
+          <div className="lg:col-span-4">
+            <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">A measured approach</p>
+            <h2 className="mt-4 text-3xl font-black leading-tight tracking-tight text-ink sm:text-4xl">
+              From the desk to the site.
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-ink-soft">
+              Good spaces are shaped by decisions made early: the site, the material, and the way a plan is read.
             </p>
           </div>
-          <div className="mx-auto w-full max-w-md lg:max-w-none">
-            <BlueprintIllustration />
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:col-span-8">
+            <figure className="col-span-2 sm:col-span-1">
+              <img src={studioDesk} alt="Architectural drawings on a studio desk" width="1600" height="1200" loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" />
+            </figure>
+            <div className="grid grid-cols-2 gap-3 sm:gap-5">
+              <figure>
+                <img src={materialBoard} alt="Warm architectural material board" width="1600" height="1200" loading="lazy" decoding="async" className="aspect-square w-full object-cover" />
+              </figure>
+              <figure>
+                <img src={siteContext} alt="Residential architecture in its site context" width="1600" height="1200" loading="lazy" decoding="async" className="aspect-square w-full object-cover" />
+              </figure>
+            </div>
           </div>
         </Container>
       </section>
@@ -178,11 +253,11 @@ function HomePage() {
             title="How it works"
             subtitle="From browsing to building in four steps."
           />
-          <ol className="mt-8 grid gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="mt-8 grid gap-px overflow-hidden rounded-[8px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((step, index) => (
               <li key={step.title} className="bg-surface p-6">
-                <p className="text-sm font-medium text-ink-faint">Step {index + 1}</p>
-                <p className="mt-2 font-medium text-ink">{step.title}</p>
+                <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">0{index + 1}</p>
+                <p className="mt-5 text-lg font-bold text-ink">{step.title}</p>
                 <p className="mt-2 text-sm leading-relaxed text-ink-soft">{step.text}</p>
               </li>
             ))}
@@ -192,25 +267,20 @@ function HomePage() {
 
       <section>
         <Container className="py-16">
-          <div className="rounded-lg bg-brand px-6 py-12 text-center sm:px-12">
-            <h2 className="text-2xl font-semibold tracking-tight text-brand-foreground">
-              Find the plan that fits your plot.
+          <div className="rounded-[8px] border border-line-strong bg-surface p-6 text-center sm:px-12 sm:py-12">
+            <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">Start with the right foundation</p>
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-ink sm:text-4xl">
+              Find the plan that fits.
             </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-brand-foreground/70">
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
               Filter by plot dimensions and floor area to see only the plans that work for your
               site.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Link
-                to="/floor-plans"
-                className="inline-flex h-11 items-center justify-center rounded-md bg-brand-foreground px-5 text-sm font-medium text-brand transition hover:bg-brand-foreground/85"
-              >
+              <Link to="/floor-plans" className={buttonClasses('primary', 'lg')}>
                 Browse floor plans
               </Link>
-              <Link
-                to="/contact"
-                className="inline-flex h-11 items-center justify-center rounded-md border border-brand-foreground/30 px-5 text-sm font-medium text-brand-foreground transition hover:bg-brand-foreground/10"
-              >
+              <Link to="/contact" className={buttonClasses('secondary', 'lg')}>
                 Talk to us
               </Link>
             </div>

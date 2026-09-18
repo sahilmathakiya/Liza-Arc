@@ -36,24 +36,24 @@ function AdminHubPage() {
         actions={
           <Link
             to="/admin/upload"
-            className="inline-flex h-10 items-center rounded-md bg-brand px-4 text-sm font-medium text-brand-foreground transition hover:bg-brand/85"
+            className="inline-flex h-10 items-center rounded-[6px] border border-brand bg-brand px-4 text-xs font-bold uppercase tracking-[1px] !text-brand-foreground transition hover:bg-active"
           >
             Upload product
           </Link>
         }
       />
 
-      <dl className="mt-6 grid gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
+      <dl className="mt-8 grid gap-px overflow-hidden rounded-[8px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
         {tiles.map((tile) => (
           <div key={tile.label} className="bg-surface p-5">
-            <dt className="text-xs uppercase tracking-wide text-ink-faint">{tile.label}</dt>
-            <dd className="mt-2 text-2xl font-semibold tracking-tight text-ink">{tile.value}</dd>
+            <dt className="text-[11px] font-semibold uppercase tracking-[1.2px] text-ink-faint">{tile.label}</dt>
+            <dd className="mt-3 text-3xl font-black tracking-tight text-brand">{tile.value}</dd>
             {tile.note && <dd className="mt-1 text-xs text-ink-soft">{tile.note}</dd>}
           </div>
         ))}
       </dl>
 
-      <div className="mt-6 rounded-lg border border-line bg-surface p-5 text-sm text-ink-soft">
+      <div className="mt-6 rounded-[8px] border border-line bg-surface p-5 text-sm leading-relaxed text-ink-soft">
         Manage everything from the sidebar: upload new plans, publish products, track orders and
         support customers with access grants.
       </div>

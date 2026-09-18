@@ -6,7 +6,7 @@ import { createPrisma } from "../../db";
 import { zodErrorMessage } from "../../lib/zod";
 import { isAdminRole } from "../../roles";
 import { ORDER_STATUSES } from "../../schema/enums";
-import { getAdminOrder, listAdminOrders } from "../../services/orders";
+import { getAdminOrder, listAdminOrders, withAccessExpiry } from "../../services/orders";
 
 const listQuerySchema = z.object({
   status: z.enum(ORDER_STATUSES).optional(),
@@ -36,5 +36,5 @@ adminOrdersRouter.get("/:id", async (c) => {
   const prisma = createPrisma(c.env.DATABASE_URL);
   const order = await getAdminOrder(prisma, c.req.param("id"));
   if (!order) return c.json({ error: "Order not found" }, 404);
-  return c.json({ order });
+  return c.json({ order: withAccessExpiry(order) });
 });
