@@ -76,7 +76,7 @@ function HomePage() {
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-canvas/65 to-transparent" aria-hidden />
         <Container className="relative flex min-h-[min(820px,calc(100svh-64px))] items-end pb-12 pt-28 sm:pb-16 lg:pb-20">
           <div className="max-w-2xl">
-            <h1 className="mt-6 text-5xl font-black leading-[.94] tracking-[-.055em] text-ink sm:text-7xl lg:text-[clamp(4.5rem,7vw,7.5rem)]">
+            <h1 className="mt-6 font-display text-5xl font-normal leading-[.98] tracking-[-.025em] text-ink sm:text-7xl lg:text-[clamp(4.5rem,7vw,7.5rem)]">
   <span className="block whitespace-nowrap">
     Draw it <em className="italic">once</em>.
   </span>
@@ -84,7 +84,7 @@ function HomePage() {
     Build it <em className="italic">right</em>.
   </span>
 </h1>
-            <p className="mt-7 max-w-lg text-lg leading-relaxed text-ink/80 sm:text-xl">
+            <p className="mt-7 max-w-lg font-display text-lg leading-relaxed text-ink/80 sm:text-xl">
               Floor plans and interior drawings for people making a place of their own.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
@@ -92,7 +92,7 @@ function HomePage() {
                 Explore floor plans
               </Link>
               <Link to="/interiors" className={buttonClasses('ghost', 'lg', 'border border-olive')}>
-                See interior plans <span aria-hidden>↗</span>
+                See interior plans
               </Link>
             </div>
           </div>
@@ -114,10 +114,10 @@ function HomePage() {
           </div>
           <div className="lg:col-span-5 lg:pl-4">
             <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">Drawings with direction</p>
-            <h2 className="mt-4 max-w-lg text-3xl font-black leading-tight tracking-tight text-ink sm:text-5xl">
+            <h2 className="mt-4 max-w-lg font-display text-3xl font-normal leading-tight tracking-tight text-ink sm:text-5xl">
               The details are where a home begins to feel like yours.
             </h2>
-            <p className="mt-5 max-w-md text-base leading-relaxed text-ink-soft">
+            <p className="mt-5 max-w-md font-display text-base leading-relaxed text-ink-soft">
               Clear dimensions, considered rooms, and enough detail to have a better conversation on site.
             </p>
             <div className="mt-8 border-t border-line pt-5 text-xs font-semibold uppercase tracking-[1.1px] text-ink-faint">
@@ -153,10 +153,10 @@ function HomePage() {
           </div>
           <div className="lg:col-span-5 lg:pl-4">
             <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">Material language</p>
-            <h2 className="mt-4 text-3xl font-black leading-tight tracking-tight text-ink sm:text-4xl">
+            <h2 className="mt-4 font-display text-3xl font-normal leading-tight tracking-tight text-ink sm:text-4xl">
               A plan is only the beginning of how a room feels.
             </h2>
-            <p className="mt-5 max-w-md text-base leading-relaxed text-ink-soft">
+            <p className="mt-5 max-w-md font-display text-base leading-relaxed text-ink-soft">
               Look closely and the useful decisions are there: openings, thresholds, light, and the quiet relationship between one room and the next.
             </p>
             <img
@@ -176,10 +176,10 @@ function HomePage() {
         <Container className="grid gap-10 py-20 lg:grid-cols-12 lg:items-end lg:gap-16 lg:py-28">
           <div className="lg:col-span-4">
             <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">A measured approach</p>
-            <h2 className="mt-4 text-3xl font-black leading-tight tracking-tight text-ink sm:text-4xl">
+            <h2 className="mt-4 font-display text-3xl font-normal leading-tight tracking-tight text-ink sm:text-4xl">
               From the desk to the site.
             </h2>
-            <p className="mt-5 text-base leading-relaxed text-ink-soft">
+            <p className="mt-5 font-display text-base leading-relaxed text-ink-soft">
               Good spaces are shaped by decisions made early: the site, the material, and the way a plan is read.
             </p>
           </div>
@@ -254,13 +254,14 @@ function HomePage() {
           <SectionHeading
             title="How it works"
             subtitle="From browsing to building in four steps."
+            display
           />
           <ol className="mt-8 grid gap-px overflow-hidden rounded-[8px] border border-line bg-line-subtle sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((step, index) => (
               <li key={step.title} className="bg-surface p-6">
-                <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">0{index + 1}</p>
-                <p className="mt-5 text-lg font-bold text-ink">{step.title}</p>
-                <p className="mt-2 text-sm leading-relaxed text-ink-soft">{step.text}</p>
+                <p className="font-display text-xs font-normal uppercase tracking-[1.4px] text-brand">0{index + 1}</p>
+                <p className="mt-5 font-display text-lg font-normal text-ink">{step.title}</p>
+                <p className="mt-2 font-display text-sm leading-relaxed text-ink-soft">{step.text}</p>
               </li>
             ))}
           </ol>
@@ -271,10 +272,10 @@ function HomePage() {
         <Container className="py-16">
           <div className="rounded-[8px] border border-line bg-surface p-6 text-center sm:px-12 sm:py-12">
             <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">Start with the right foundation</p>
-            <h2 className="mt-4 text-3xl font-black tracking-tight text-ink sm:text-4xl">
+            <h2 className="mt-4 font-display text-3xl font-normal tracking-tight text-ink sm:text-4xl">
               Find the plan that fits.
             </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
+            <p className="mx-auto mt-3 max-w-md font-display text-sm leading-relaxed text-ink-soft">
               Filter by plot dimensions and floor area to see only the plans that work for your
               site.
             </p>

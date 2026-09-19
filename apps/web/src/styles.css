@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Prata';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/prata-latin-400-normal.woff2') format('woff2');
+}
+
 :root {
   --brand: #ffbf00;
   --brand-foreground: #0b0b0a;
@@ -33,6 +41,7 @@
   --color-active: var(--active);
   --color-olive: var(--olive);
   --font-sans: Inter, Arial, Helvetica, sans-serif;
+  --font-display: 'Prata', Georgia, 'Times New Roman', serif;
   --font-mono: Inconsolata, ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 

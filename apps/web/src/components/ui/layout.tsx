@@ -29,16 +29,24 @@ export function SectionHeading({
   title,
   subtitle,
   action,
+  display = false,
 }: {
   title: string
   subtitle?: string
   action?: ReactNode
+  display?: boolean
 }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-5">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-ink">{title}</h2>
-        {subtitle && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">{subtitle}</p>}
+        <h2 className={display ? 'font-display text-2xl font-normal tracking-tight text-ink' : 'text-2xl font-bold tracking-tight text-ink'}>
+          {title}
+        </h2>
+        {subtitle && (
+          <p className={`mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft${display ? ' font-display' : ''}`}>
+            {subtitle}
+          </p>
+        )}
       </div>
       {action}
     </div>
