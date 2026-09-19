@@ -6,7 +6,7 @@ import type {
 } from 'react'
 
 const fieldClasses =
-  'w-full rounded-[6px] border border-line-strong bg-surface-muted px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-faint focus-visible:border-brand/70 focus-visible:ring-2 focus-visible:ring-brand/15 disabled:cursor-not-allowed disabled:bg-surface disabled:text-ink-faint'
+  'w-full rounded-[6px] border border-line bg-surface-muted px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-faint hover:border-line-strong focus-visible:border-line-strong focus-visible:ring-1 focus-visible:ring-line-strong/40 disabled:cursor-not-allowed disabled:bg-surface disabled:text-ink-faint'
 
 export function Label({ className = '', ...props }: LabelHTMLAttributes<HTMLLabelElement>) {
   return <label className={`mb-2 block text-xs font-semibold uppercase tracking-[1.2px] text-ink-soft ${className}`} {...props} />

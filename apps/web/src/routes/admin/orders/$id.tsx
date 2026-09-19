@@ -38,7 +38,7 @@ function AdminOrderDetailPage() {
           Placed {new Date(order.createdAt).toLocaleString('en-IN')}
         </p>
 
-        <dl className="mt-6 grid gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-2">
+        <dl className="mt-6 grid gap-px overflow-hidden rounded-md border border-line bg-line-subtle sm:grid-cols-2">
           <div className="bg-surface p-4">
             <dt className="text-xs uppercase tracking-wide text-ink-faint">Customer</dt>
             <dd className="mt-1 font-medium text-ink">{order.user.name}</dd>

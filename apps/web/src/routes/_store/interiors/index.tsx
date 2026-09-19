@@ -52,7 +52,7 @@ function InteriorsPage() {
 
   const chipClass = (active: boolean) =>
        active
-       ? 'rounded-full border border-brand/50 bg-brand/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand'
+       ? 'rounded-full border border-active bg-brand/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand'
        : 'rounded-full border border-line bg-surface px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-ink-soft transition hover:border-line-strong hover:text-brand'
 
   return (

@@ -33,7 +33,7 @@ function RootPending() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-canvas">
       <span role="status" className="inline-flex items-center gap-2 text-sm text-ink-soft">
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-ink" />
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-line border-t-active" />
         Loading…
       </span>
     </div>
@@ -48,7 +48,7 @@ function RootNotFound() {
       <p className="mt-2 text-sm text-ink-soft">The page you are looking for does not exist.</p>
       <a
         href="/"
-        className="mt-6 rounded-[6px] border border-brand bg-brand px-4 py-2 text-sm font-bold !text-brand-foreground transition hover:bg-active"
+        className="mt-6 rounded-[6px] border border-active bg-brand px-4 py-2 text-sm font-bold !text-brand-foreground transition hover:bg-active"
       >
         Go home
       </a>
@@ -66,7 +66,7 @@ function RootError({ error }: { error: unknown }) {
       </p>
       <button
         onClick={() => window.location.reload()}
-        className="mt-6 rounded-[6px] border border-brand bg-brand px-4 py-2 text-sm font-bold !text-brand-foreground transition hover:bg-active"
+        className="mt-6 rounded-[6px] border border-active bg-brand px-4 py-2 text-sm font-bold !text-brand-foreground transition hover:bg-active"
       >
         Reload page
       </button>

@@ -70,7 +70,7 @@ function StoreHeader() {
           ) : (
             <Link
               to="/login"
-              className="rounded-[6px] border border-brand bg-brand px-4 py-2 text-xs font-bold uppercase tracking-[1px] !text-brand-foreground transition hover:bg-active"
+              className="rounded-[6px] border border-active bg-brand px-4 py-2 text-xs font-bold uppercase tracking-[1px] !text-brand-foreground transition hover:bg-active"
             >
               Sign in
             </Link>
@@ -98,7 +98,7 @@ function StoreHeader() {
                 key={item.to}
                 to={item.to}
                 onClick={() => setMenuOpen(false)}
-                  className="border-b border-transparent px-1 py-3 text-sm text-ink-soft transition hover:border-brand hover:text-ink"
+                  className="border-b border-transparent px-1 py-3 text-sm text-ink-soft transition hover:border-line-strong hover:text-ink"
               >
                 {item.label}
               </Link>
@@ -109,14 +109,14 @@ function StoreHeader() {
                   <Link
                     to="/purchases"
                     onClick={() => setMenuOpen(false)}
-                    className="border-b border-transparent px-1 py-3 text-sm text-ink-soft transition hover:border-brand hover:text-ink"
+                    className="border-b border-transparent px-1 py-3 text-sm text-ink-soft transition hover:border-line-strong hover:text-ink"
                   >
                     My purchases
                   </Link>
                   <Link
                     to="/dashboard"
                     onClick={() => setMenuOpen(false)}
-                    className="border-b border-transparent px-1 py-3 text-sm text-ink-soft transition hover:border-brand hover:text-ink"
+                    className="border-b border-transparent px-1 py-3 text-sm text-ink-soft transition hover:border-line-strong hover:text-ink"
                   >
                     Account
                   </Link>

@@ -75,14 +75,14 @@ function DashboardPage() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to="/purchases"
-                  className="inline-flex h-10 items-center rounded-[6px] border border-brand bg-brand px-4 text-xs font-bold uppercase tracking-wide !text-brand-foreground transition hover:bg-active"
+                  className="inline-flex h-10 items-center rounded-[6px] border border-active bg-brand px-4 text-xs font-bold uppercase tracking-wide !text-brand-foreground transition hover:bg-active"
             >
               My purchases
             </Link>
             {isAdminRole(session.user.role) && (
               <Link
                 to="/admin"
-                 className="inline-flex h-10 items-center rounded-[4px] border border-line bg-surface px-4 text-xs font-bold uppercase tracking-wide text-ink transition hover:border-brand hover:text-brand"
+                 className="inline-flex h-10 items-center rounded-[4px] border border-line bg-surface px-4 text-xs font-bold uppercase tracking-wide text-ink transition hover:border-line-strong hover:text-brand"
               >
                 Admin dashboard
               </Link>

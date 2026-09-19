@@ -36,14 +36,14 @@ function AdminHubPage() {
         actions={
           <Link
             to="/admin/upload"
-            className="inline-flex h-10 items-center rounded-[6px] border border-brand bg-brand px-4 text-xs font-bold uppercase tracking-[1px] !text-brand-foreground transition hover:bg-active"
+            className="inline-flex h-10 items-center rounded-[6px] border border-active bg-brand px-4 text-xs font-bold uppercase tracking-[1px] !text-brand-foreground transition hover:bg-active"
           >
             Upload product
           </Link>
         }
       />
 
-      <dl className="mt-8 grid gap-px overflow-hidden rounded-[8px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
+      <dl className="mt-8 grid gap-px overflow-hidden rounded-[8px] border border-line bg-line-subtle sm:grid-cols-2 lg:grid-cols-5">
         {tiles.map((tile) => (
           <div key={tile.label} className="bg-surface p-5">
             <dt className="text-[11px] font-semibold uppercase tracking-[1.2px] text-ink-faint">{tile.label}</dt>

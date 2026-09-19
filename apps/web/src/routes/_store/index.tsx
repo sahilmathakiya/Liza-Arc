@@ -76,12 +76,14 @@ function HomePage() {
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-canvas/65 to-transparent" aria-hidden />
         <Container className="relative flex min-h-[min(820px,calc(100svh-64px))] items-end pb-12 pt-28 sm:pb-16 lg:pb-20">
           <div className="max-w-2xl">
-            <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[1.4px] text-brand">
-              <span className="h-px w-8 bg-brand" aria-hidden /> Architect-drawn digital plans
-            </p>
-            <h1 className="mt-6 max-w-3xl text-5xl font-black leading-[.94] tracking-[-.055em] text-ink sm:text-7xl lg:text-[clamp(4.5rem,7vw,7.5rem)]">
-              Draw it once.<br /><span className="text-brand">Build it right.</span>
-            </h1>
+            <h1 className="mt-6 text-5xl font-black leading-[.94] tracking-[-.055em] text-ink sm:text-7xl lg:text-[clamp(4.5rem,7vw,7.5rem)]">
+  <span className="block whitespace-nowrap">
+    Draw it <em className="italic">once</em>.
+  </span>
+  <span className="block whitespace-nowrap text-brand">
+    Build it <em className="italic">right</em>.
+  </span>
+</h1>
             <p className="mt-7 max-w-lg text-lg leading-relaxed text-ink/80 sm:text-xl">
               Floor plans and interior drawings for people making a place of their own.
             </p>
@@ -107,7 +109,7 @@ function HomePage() {
               height="1200"
               loading="lazy"
               decoding="async"
-              className="aspect-[4/3] w-full object-cover"
+              className="aspect-[4/3] w-full rounded-[6px] object-cover"
             />
           </div>
           <div className="lg:col-span-5 lg:pl-4">
@@ -135,9 +137,9 @@ function HomePage() {
               height="1200"
               loading="lazy"
               decoding="async"
-              className="aspect-[4/3] w-full object-cover"
+              className="aspect-[4/3] w-full rounded-[6px] object-cover"
             />
-            <div className="absolute -bottom-7 right-4 w-36 bg-surface p-2 sm:right-10 sm:w-48">
+            <div className="absolute -bottom-7 right-4 w-36 bg-surface p-1 rounded-[3px] sm:right-10 sm:w-48">
               <img
                 src={elevationDetail}
                 alt="Architectural elevation drawing detail"
@@ -145,7 +147,7 @@ function HomePage() {
                 height="1200"
                 loading="lazy"
                 decoding="async"
-                className="aspect-square w-full object-cover"
+                className="aspect-square w-full object-cover rounded-[3px]"
               />
             </div>
           </div>
@@ -164,7 +166,7 @@ function HomePage() {
               height="1000"
               loading="lazy"
               decoding="async"
-              className="mt-8 aspect-[4/3] w-full object-cover"
+              className="mt-8 aspect-[4/3] w-full rounded-[6px] object-cover"
             />
           </div>
         </Container>
@@ -183,14 +185,14 @@ function HomePage() {
           </div>
           <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:col-span-8">
             <figure className="col-span-2 sm:col-span-1">
-              <img src={studioDesk} alt="Architectural drawings on a studio desk" width="1600" height="1200" loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" />
+              <img src={studioDesk} alt="Architectural drawings on a studio desk" width="1600" height="1200" loading="lazy" decoding="async" className="aspect-[4/3] w-full rounded-[6px] object-cover" />
             </figure>
             <div className="grid grid-cols-2 gap-3 sm:gap-5">
               <figure>
-                <img src={materialBoard} alt="Warm architectural material board" width="1600" height="1200" loading="lazy" decoding="async" className="aspect-square w-full object-cover" />
+                <img src={materialBoard} alt="Warm architectural material board" width="1600" height="1200" loading="lazy" decoding="async" className="aspect-square w-full rounded-[6px] object-cover" />
               </figure>
               <figure>
-                <img src={siteContext} alt="Residential architecture in its site context" width="1600" height="1200" loading="lazy" decoding="async" className="aspect-square w-full object-cover" />
+                <img src={siteContext} alt="Residential architecture in its site context" width="1600" height="1200" loading="lazy" decoding="async" className="aspect-square w-full rounded-[6px] object-cover" />
               </figure>
             </div>
           </div>
@@ -253,7 +255,7 @@ function HomePage() {
             title="How it works"
             subtitle="From browsing to building in four steps."
           />
-          <ol className="mt-8 grid gap-px overflow-hidden rounded-[8px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="mt-8 grid gap-px overflow-hidden rounded-[8px] border border-line bg-line-subtle sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((step, index) => (
               <li key={step.title} className="bg-surface p-6">
                 <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">0{index + 1}</p>
@@ -267,7 +269,7 @@ function HomePage() {
 
       <section>
         <Container className="py-16">
-          <div className="rounded-[8px] border border-line-strong bg-surface p-6 text-center sm:px-12 sm:py-12">
+          <div className="rounded-[8px] border border-line bg-surface p-6 text-center sm:px-12 sm:py-12">
             <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">Start with the right foundation</p>
             <h2 className="mt-4 text-3xl font-black tracking-tight text-ink sm:text-4xl">
               Find the plan that fits.

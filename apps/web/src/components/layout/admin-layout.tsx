@@ -21,7 +21,7 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
           activeOptions={item.exact ? { exact: true } : undefined}
           activeProps={{
             className:
-              'whitespace-nowrap border-l-2 border-brand px-3 py-2 text-sm font-medium text-brand',
+              'whitespace-nowrap border-l-2 border-active px-3 py-2 text-sm font-medium text-brand',
           }}
           inactiveProps={{
             className:
@@ -66,7 +66,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           </div>
           <nav
             aria-label="Admin"
-            className="flex gap-3 overflow-x-auto border-t border-line px-4 py-3"
+            className="scrollbar-hidden flex gap-3 overflow-x-auto border-t border-line px-4 py-3"
           >
             <NavItems />
           </nav>

@@ -197,7 +197,7 @@ export function UploadForm() {
               onClick={() => switchType(option.value)}
               className={
                 type === option.value
-                  ? 'rounded-[8px] border border-brand bg-brand/10 p-4 text-left text-ink'
+                   ? 'rounded-[8px] border border-active bg-brand/10 p-4 text-left text-ink'
                    : 'rounded-[8px] border border-line bg-surface p-4 text-left transition hover:border-line-strong'
               }
             >

@@ -4,8 +4,8 @@ export type BadgeTone = 'neutral' | 'dark' | 'outline'
 
 const TONES: Record<BadgeTone, string> = {
   neutral: 'border border-line bg-surface-muted text-ink-soft',
-  dark: 'border border-brand/40 bg-brand/10 text-brand',
-  outline: 'border border-line-strong text-ink-soft',
+  dark: 'border border-line bg-brand/10 text-brand',
+  outline: 'border border-line text-ink-soft',
 }
 
 export function Badge({
