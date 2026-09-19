@@ -155,7 +155,7 @@ export function BuyBox({ product, session }: { product: ProductDetail; session: 
           return (
             <div
               key={optionKey}
-              className={`rounded-lg border p-4 ${option.highlight ? 'border-ink' : 'border-line'}`}
+               className={`rounded-lg border p-4 ${option.highlight ? 'border-active' : 'border-line'}`}
             >
               <div className="flex items-center justify-between gap-3">
                 <div>

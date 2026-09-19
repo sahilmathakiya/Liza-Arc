@@ -79,7 +79,7 @@ function FloorPlanDetailPage() {
             {product.description && (
               <p className="mt-3 text-sm leading-relaxed text-ink-soft">{product.description}</p>
             )}
-            <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-3">
+            <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line-subtle sm:grid-cols-3">
               {specs.map((spec) => (
                 <div key={spec.label} className="bg-surface p-3">
                   <dt className="text-xs uppercase tracking-wide text-ink-faint">{spec.label}</dt>

@@ -136,7 +136,7 @@ export function FloorPlanFilters({ search }: { search: FloorPlanSearch }) {
           </Select>
         </div>
         <div className="w-40">
-          <Label htmlFor="filter-order">Direction</Label>
+          <Label htmlFor="filter-order">Order</Label>
           <Select
             id="filter-order"
             value={draft.order}

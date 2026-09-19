@@ -1,18 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --brand: #d4b24c;
+  --brand: #ffbf00;
   --brand-foreground: #0b0b0a;
   --canvas: #0b0b0a;
   --surface: #242321;
   --surface-muted: #242321;
-  --line: rgba(143, 119, 49, 0.45);
-  --line-strong: #8f7731;
+  --line: #35342f;
+  --line-subtle: #292824;
+  --line-strong: #555047;
   --ink: #f2f0e9;
   --ink-soft: #9a9890;
   --ink-faint: rgba(154, 152, 144, 0.68);
-  --active: #d4b24c;
-  --olive: #8f7731;
+  --active: #f4d738;
+  --olive: #35342f;
   --line-grid: rgba(143, 119, 49, 0.18);
   --radius: 4px;
 }
@@ -24,6 +25,7 @@
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
   --color-line: var(--line);
+  --color-line-subtle: var(--line-subtle);
   --color-line-strong: var(--line-strong);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
@@ -44,6 +46,78 @@ body,
   min-height: 100%;
 }
 
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) var(--canvas);
+}
+
+html::-webkit-scrollbar,
+.sleek-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html::-webkit-scrollbar-track,
+.sleek-scrollbar::-webkit-scrollbar-track {
+  background: var(--canvas);
+}
+
+html::-webkit-scrollbar-thumb,
+.sleek-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border: 2px solid var(--canvas);
+  border-radius: 999px;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+.sleek-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--line-strong);
+}
+
+.sleek-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) var(--canvas);
+  overscroll-behavior-inline: contain;
+}
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+input,
+select,
+textarea {
+  scrollbar-width: none;
+}
+
+input::-webkit-scrollbar,
+select::-webkit-scrollbar,
+textarea::-webkit-scrollbar {
+  display: none;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
 body {
   margin: 0;
   background-color: var(--canvas);
@@ -61,7 +135,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--brand);
+  outline: 2px solid var(--active);
   outline-offset: 2px;
 }
 

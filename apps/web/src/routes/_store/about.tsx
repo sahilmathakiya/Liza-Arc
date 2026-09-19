@@ -61,7 +61,7 @@ function AboutPage() {
       <section className="border-b border-line">
         <Container className="py-16">
           <SectionHeading title="What we stand for" />
-          <div className="mt-8 grid gap-px overflow-hidden rounded-lg border border-line bg-line md:grid-cols-3">
+          <div className="mt-8 grid gap-px overflow-hidden rounded-lg border border-line bg-line-subtle md:grid-cols-3">
             {VALUES.map((value) => (
               <div key={value.title} className="bg-surface p-6">
                 <p className="font-medium text-ink">{value.title}</p>

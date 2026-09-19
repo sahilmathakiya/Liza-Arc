@@ -62,7 +62,7 @@ function PurchasesPage() {
               title="You have not purchased anything yet"
               message="Browse the catalog — anything you buy appears here with a download button."
               action={
-                  <Link to="/floor-plans" className="inline-flex h-10 items-center rounded-[6px] border border-brand bg-brand px-4 text-xs font-bold uppercase tracking-wide !text-brand-foreground transition hover:bg-active">
+                  <Link to="/floor-plans" className="inline-flex h-10 items-center rounded-[6px] border border-active bg-brand px-4 text-xs font-bold uppercase tracking-wide !text-brand-foreground transition hover:bg-active">
                   Browse floor plans
                 </Link>
               }
