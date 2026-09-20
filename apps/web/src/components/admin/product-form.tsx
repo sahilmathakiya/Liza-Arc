@@ -62,7 +62,7 @@ export function ProductForm({ onCreated }: { onCreated: (product: Product) => vo
   }
 
   return (
-    <div className="rounded-[8px] border border-line bg-surface p-6 shadow-[0_4px_25px_rgba(0,0,0,.14)_inset]">
+    <div className="rounded-[8px] border border-line bg-surface p-6 shadow-card">
       <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">Catalog / new item</p>
       <h2 className="mt-3 text-2xl font-black text-ink">Create product</h2>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">

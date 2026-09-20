@@ -1,8 +1,10 @@
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
 import type { Session } from "../../auth";
 import { createAuth } from "../../auth";
 import { createPrisma } from "../../db";
+import { JSON_MAX_BYTES } from "../../lib/body-limits";
 import { zodErrorMessage } from "../../lib/zod";
 import { isAdminRole } from "../../roles";
 import { ORDER_STATUSES } from "../../schema/enums";
@@ -15,6 +17,8 @@ const listQuerySchema = z.object({
 });
 
 export const adminOrdersRouter = new Hono<{ Bindings: Env; Variables: { session: Session } }>();
+
+adminOrdersRouter.use("*", bodyLimit({ maxSize: JSON_MAX_BYTES }));
 
 adminOrdersRouter.use("*", async (c, next) => {
   const session = await createAuth(c.env).api.getSession({ headers: c.req.raw.headers });

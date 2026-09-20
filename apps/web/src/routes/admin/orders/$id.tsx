@@ -29,7 +29,7 @@ function AdminOrderDetailPage() {
         <span className="font-mono text-ink">{order.id.slice(0, 12)}…</span>
       </nav>
 
-      <div className="mt-6 rounded-lg border border-line bg-surface p-6">
+      <div className="mt-6 rounded-lg border border-line bg-surface p-6 shadow-card">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="font-mono text-lg font-semibold text-ink">{order.id}</h1>
           <Badge tone={statusTone(order.status)}>{order.status}</Badge>
@@ -48,10 +48,16 @@ function AdminOrderDetailPage() {
             <dt className="text-xs uppercase tracking-wide text-ink-faint">Payment reference</dt>
             <dd className="mt-1 break-all font-mono text-sm text-ink">{order.paymentRef ?? '—'}</dd>
           </div>
+          <div className="bg-surface p-4">
+            <dt className="text-xs uppercase tracking-wide text-ink-faint">Razorpay order</dt>
+            <dd className="mt-1 break-all font-mono text-sm text-ink">
+              {order.razorpayOrderId ?? '—'}
+            </dd>
+          </div>
         </dl>
       </div>
 
-      <div className="mt-6 rounded-lg border border-line bg-surface p-6">
+      <div className="mt-6 rounded-lg border border-line bg-surface p-6 shadow-card">
         <h2 className="text-base font-semibold text-ink">Items</h2>
         <ul className="mt-4 divide-y divide-line">
           {order.items.map((item) => (

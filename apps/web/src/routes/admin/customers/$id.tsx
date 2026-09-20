@@ -79,7 +79,7 @@ function AdminCustomerDetailPage() {
         <span className="text-ink">{customer.name}</span>
       </nav>
 
-      <div className="mt-6 rounded-lg border border-line bg-surface p-6">
+      <div className="mt-6 rounded-lg border border-line bg-surface p-6 shadow-card">
         <h1 className="text-xl font-semibold tracking-tight text-ink">{customer.name}</h1>
         <p className="mt-1 text-sm text-ink-soft">{customer.email}</p>
         <p className="mt-1 text-xs text-ink-faint">
@@ -87,7 +87,7 @@ function AdminCustomerDetailPage() {
         </p>
       </div>
 
-      <section className="mt-6 rounded-lg border border-line bg-surface p-6" aria-label="Owned items">
+      <section className="mt-6 rounded-lg border border-line bg-surface p-6 shadow-card" aria-label="Owned items">
         <h2 className="text-base font-semibold text-ink">Owned items</h2>
         {customer.entitlements.length === 0 ? (
           <div className="mt-4">
@@ -117,7 +117,7 @@ function AdminCustomerDetailPage() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-lg border border-line bg-surface p-6" aria-label="Grant access">
+      <section className="mt-6 rounded-lg border border-line bg-surface p-6 shadow-card" aria-label="Grant access">
         <h2 className="text-base font-semibold text-ink">Grant item manually</h2>
         <p className="mt-1 text-sm text-ink-soft">
           Give free access for promotions or customer support.
@@ -169,7 +169,7 @@ function AdminCustomerDetailPage() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-lg border border-line bg-surface p-6" aria-label="Customer orders">
+      <section className="mt-6 rounded-lg border border-line bg-surface p-6 shadow-card" aria-label="Customer orders">
         <h2 className="text-base font-semibold text-ink">Orders</h2>
         {customer.orders.length === 0 ? (
           <div className="mt-4">

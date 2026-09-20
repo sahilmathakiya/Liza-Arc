@@ -6,6 +6,7 @@ import { createPrisma } from "../db";
 import { createZip } from "../lib/archive";
 import { detectFileKind } from "../lib/file-type";
 import type { FileKind } from "../lib/file-type";
+import { rateLimit } from "../lib/rate-limit";
 import {
   downloadResponseHeaders,
   interiorPreviewCardKey,
@@ -185,6 +186,14 @@ assetsRouter.get("/products/:id/:kind", async (c) => {
 
   const session = await createAuth(c.env).api.getSession({ headers: c.req.raw.headers });
   if (!session) return c.json({ error: "Unauthorized" }, 401);
+
+  const limited = rateLimit(c, {
+    scope: "asset-download",
+    max: 30,
+    windowMs: 60_000,
+    key: session.user.id,
+  });
+  if (limited) return limited;
 
   const productId = c.req.param("id");
   const prisma = createPrisma(c.env.DATABASE_URL);

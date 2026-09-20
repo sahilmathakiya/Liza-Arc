@@ -74,7 +74,7 @@ function FloorPlanDetailPage() {
             )}
           </div>
 
-          <div className="rounded-lg border border-line bg-surface p-6">
+          <div className="rounded-lg border border-line bg-surface p-6 shadow-card">
             <h1 className="text-2xl font-semibold tracking-tight text-ink">{product.name}</h1>
             {product.description && (
               <p className="mt-3 text-sm leading-relaxed text-ink-soft">{product.description}</p>

@@ -39,7 +39,7 @@ function StoreHeader() {
   const inactiveNavClass = 'px-2 py-1.5 text-sm text-ink-soft transition hover:text-ink'
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-canvas/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-line bg-canvas/95 shadow-header backdrop-blur">
       <Container className="flex h-[72px] items-center justify-between gap-6">
         <div className="flex min-w-0 items-center gap-10">
           <Wordmark />

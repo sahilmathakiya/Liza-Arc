@@ -1,6 +1,9 @@
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import { createPrisma } from "../db";
+import { WEBHOOK_MAX_BYTES } from "../lib/body-limits";
 import { getRazorpayOrder, verifyWebhookSignature } from "../lib/razorpay";
+import { rateLimit } from "../lib/rate-limit";
 import {
   confirmPurchase,
   failPurchase,
@@ -9,6 +12,14 @@ import {
 } from "../services/orders";
 
 export const webhooksRouter = new Hono<{ Bindings: Env }>();
+
+webhooksRouter.use("*", bodyLimit({ maxSize: WEBHOOK_MAX_BYTES }));
+
+webhooksRouter.use("*", async (c, next) => {
+  const limited = rateLimit(c, { scope: "razorpay-webhook", max: 600, windowMs: 60_000 });
+  if (limited) return limited;
+  await next();
+});
 
 interface RazorpayEntity {
   id?: string;

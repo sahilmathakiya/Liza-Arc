@@ -1,4 +1,5 @@
 import { apiFetch } from './api'
+import type { RazorpayHandlerResponse } from './razorpay'
 import type { AssetKind, EntitlementType, ProductType } from './products'
 
 export type OrderStatus = 'PENDING' | 'PAID' | 'FAILED'
@@ -25,6 +26,7 @@ export interface OrderView {
   totalCents: number
   currency: string
   paymentRef: string | null
+  razorpayOrderId: string | null
   createdAt: string
   items: OrderItemView[]
 }
@@ -98,10 +100,29 @@ export function createCheckout(items: CheckoutItemInput[]) {
   })
 }
 
-export function payOrder(orderId: string, result: 'success' | 'fail') {
-  return apiFetch<{ orderId: string; status: OrderStatus }>(`/api/checkout/${orderId}/pay`, {
+export interface RazorpayOrderSession {
+  orderId: string
+  keyId: string
+  razorpayOrderId: string
+  amount: number
+  currency: string
+  prefill: { name: string; email: string }
+}
+
+export function createRazorpayOrder(orderId: string) {
+  return apiFetch<RazorpayOrderSession>(`/api/checkout/${orderId}/pay`, {
     method: 'POST',
-    body: JSON.stringify({ result }),
+  })
+}
+
+export function verifyRazorpayPayment(orderId: string, payment: RazorpayHandlerResponse) {
+  return apiFetch<{ orderId: string; status: OrderStatus }>(`/api/checkout/${orderId}/verify`, {
+    method: 'POST',
+    body: JSON.stringify({
+      razorpayOrderId: payment.razorpay_order_id,
+      razorpayPaymentId: payment.razorpay_payment_id,
+      razorpaySignature: payment.razorpay_signature,
+    }),
   })
 }
 

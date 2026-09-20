@@ -125,7 +125,7 @@ export function BuyBox({ product, session }: { product: ProductDetail; session: 
   }
 
   return (
-    <div className="rounded-lg border border-line bg-surface p-6">
+    <div className="rounded-lg border border-line bg-surface p-6 shadow-card">
       <h2 className="text-lg font-semibold tracking-tight text-ink">Purchase</h2>
       <div className="mt-4 space-y-3">
         {options.map((option) => {

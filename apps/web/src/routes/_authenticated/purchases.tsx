@@ -68,7 +68,7 @@ function PurchasesPage() {
               }
             />
           ) : (
-             <ul className="divide-y divide-line rounded-[8px] border border-line bg-surface px-4">
+             <ul className="divide-y divide-line rounded-[8px] border border-line bg-surface px-4 shadow-card">
               {entitlements.map((entitlement) => {
                 const expiresAt = entitlement.expiresAt
                 const expired = isExpired(expiresAt)
@@ -136,7 +136,7 @@ function PurchasesPage() {
           {orders.length === 0 ? (
             <p className="mt-3 text-sm text-ink-soft">No orders yet.</p>
           ) : (
-             <ul className="mt-3 divide-y divide-line rounded-[8px] border border-line bg-surface px-4">
+             <ul className="mt-3 divide-y divide-line rounded-[8px] border border-line bg-surface px-4 shadow-card">
               {orders.map((order) => (
                 <li key={order.id} className="py-4">
                   <div className="flex items-center justify-between gap-4">

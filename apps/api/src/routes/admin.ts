@@ -1,7 +1,10 @@
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import type { Context } from "hono";
 import { createAuth } from "../auth";
 import { createPrisma } from "../db";
+import { JSON_MAX_BYTES } from "../lib/body-limits";
+import { rateLimit } from "../lib/rate-limit";
 import { MAX_ADMINS, ROLE, isAdminRole } from "../roles";
 import type { Role } from "../roles";
 
@@ -46,6 +49,8 @@ async function createAccount(
 
 export const adminRouter = new Hono<{ Bindings: Env }>();
 
+adminRouter.use("*", bodyLimit({ maxSize: JSON_MAX_BYTES }));
+
 adminRouter.get("/signup-open", async (c) => {
   const prisma = createPrisma(c.env.DATABASE_URL);
   const superAdmin = await prisma.user.findFirst({
@@ -56,6 +61,9 @@ adminRouter.get("/signup-open", async (c) => {
 });
 
 adminRouter.post("/signup", async (c) => {
+  const limited = rateLimit(c, { scope: "admin-signup", max: 5, windowMs: 60_000 });
+  if (limited) return limited;
+
   const raw = await c.req.json().catch(() => null);
   const body = parseAccountBody(raw);
   const adminKey = raw && typeof raw === "object" ? (raw as Record<string, unknown>).adminKey : undefined;
@@ -87,6 +95,14 @@ adminRouter.post("/create", async (c) => {
   if (session.user.role !== ROLE.superAdmin) {
     return c.json({ error: "Only the super admin can create admins" }, 403);
   }
+
+  const limited = rateLimit(c, {
+    scope: "admin-create",
+    max: 60,
+    windowMs: 60_000,
+    key: session.user.id,
+  });
+  if (limited) return limited;
 
   const body = parseAccountBody(await c.req.json().catch(() => null));
   if (!body) {

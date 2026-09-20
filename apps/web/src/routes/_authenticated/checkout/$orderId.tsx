@@ -6,7 +6,8 @@ import { Container } from '#/components/ui/layout'
 import { usePaidDownload } from '#/hooks/use-paid-download'
 import { paidAssetFallbackFilename } from '#/lib/download'
 import { accessLabel, isExpired } from '#/lib/expiry'
-import { getMyOrder, payOrder } from '#/lib/orders'
+import { createRazorpayOrder, getMyOrder, verifyRazorpayPayment } from '#/lib/orders'
+import { loadRazorpayCheckout } from '#/lib/razorpay'
 import { ENTITLEMENT_TYPE_LABELS, formatPrice } from '#/lib/products'
 
 const DOWNLOAD_KIND_BY_ENTITLEMENT = {
@@ -28,19 +29,54 @@ function CheckoutPage() {
   const router = useRouter()
   const { order } = Route.useLoaderData()
   const [error, setError] = useState<string | null>(null)
-  const [pending, setPending] = useState<'success' | 'fail' | null>(null)
+  const [paying, setPaying] = useState(false)
   const { download, pendingKey, error: downloadError } = usePaidDownload()
 
-  async function handlePay(result: 'success' | 'fail') {
+  async function handlePay() {
     setError(null)
-    setPending(result)
+    setPaying(true)
     try {
-      await payOrder(order.id, result)
-      await router.invalidate()
+      const session = await createRazorpayOrder(order.id)
+      await loadRazorpayCheckout()
+      const Razorpay = window.Razorpay
+      if (!Razorpay) throw new Error('The payment window is unavailable — please try again')
+      const checkout = new Razorpay({
+        key: session.keyId,
+        order_id: session.razorpayOrderId,
+        amount: session.amount,
+        currency: session.currency,
+        name: 'liza-arch',
+        description:
+          order.items.length === 1
+            ? order.items[0].product.name
+            : `${order.items.length} purchased items`,
+        prefill: session.prefill,
+        theme: { color: '#ffbf00' },
+        handler: async (response) => {
+          try {
+            await verifyRazorpayPayment(order.id, response)
+            await router.invalidate()
+          } catch {
+            setError(
+              'Your payment went through but could not be confirmed instantly. Refresh this page in a minute — it will also appear in your purchases.',
+            )
+          } finally {
+            setPaying(false)
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setError(
+              'Checkout was closed before the payment completed. You can try again — if an amount was deducted, it will be confirmed here automatically or refunded by Razorpay.',
+            )
+            setPaying(false)
+          },
+        },
+      })
+      checkout.open()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong')
-    } finally {
-      setPending(null)
+      setPaying(false)
     }
   }
 
@@ -56,7 +92,7 @@ function CheckoutPage() {
         <span className="text-ink">Checkout</span>
       </nav>
 
-      <div className="mt-6 rounded-lg border border-line bg-surface p-6 sm:p-8">
+      <div className="mt-6 rounded-lg border border-line bg-surface p-6 shadow-card shadow-card sm:p-8">
         <h1 className="text-2xl font-semibold tracking-tight text-ink">Checkout</h1>
         <p className="mt-1 text-sm text-ink-soft">
           Order <span className="font-mono text-ink">{order.id}</span>
@@ -81,17 +117,15 @@ function CheckoutPage() {
       </div>
 
       {order.status === 'PENDING' && (
-        <div className="mt-6 rounded-lg border border-line bg-surface p-6">
-          <h2 className="text-base font-semibold text-ink">Mock payment</h2>
+        <div className="mt-6 rounded-lg border border-line bg-surface p-6 shadow-card">
+          <h2 className="text-base font-semibold text-ink">Payment</h2>
           <p className="mt-1 text-sm text-ink-soft">
-            This is a placeholder gateway — a real payment provider will replace it later.
+            Pay securely via Razorpay — UPI, cards, netbanking and wallets supported. Your files
+            unlock immediately after payment.
           </p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <Button onClick={() => handlePay('success')} disabled={pending !== null}>
-              {pending === 'success' ? 'Processing…' : 'Pay now'}
-            </Button>
-            <Button onClick={() => handlePay('fail')} disabled={pending !== null} variant="danger">
-              {pending === 'fail' ? 'Processing…' : 'Simulate failure'}
+          <div className="mt-4">
+            <Button onClick={handlePay} disabled={paying}>
+              {paying ? 'Opening payment…' : `Pay ${formatPrice(order.totalCents)}`}
             </Button>
           </div>
           <div className="mt-3">
@@ -101,7 +135,7 @@ function CheckoutPage() {
       )}
 
       {order.status === 'PAID' && (
-        <div className="mt-6 rounded-lg border border-line bg-surface p-6">
+        <div className="mt-6 rounded-lg border border-line bg-surface p-6 shadow-card">
           <h2 className="text-base font-semibold text-ink">Payment successful</h2>
           <p className="mt-1 text-sm text-ink-soft">
             Your items are unlocked — download them below or from your purchases page.
@@ -167,10 +201,11 @@ function CheckoutPage() {
       )}
 
       {order.status === 'FAILED' && (
-        <div className="mt-6 rounded-lg border border-line bg-surface p-6">
+        <div className="mt-6 rounded-lg border border-line bg-surface p-6 shadow-card">
           <h2 className="text-base font-semibold text-ink">Payment failed</h2>
           <p className="mt-1 text-sm text-ink-soft">
-            No money was charged. Please go back to the product and start a new checkout.
+            The payment didn't go through and nothing was charged. Please go back to the product and
+            start a new checkout.
           </p>
         </div>
       )}

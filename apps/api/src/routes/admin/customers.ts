@@ -1,8 +1,11 @@
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
 import type { Session } from "../../auth";
 import { createAuth } from "../../auth";
 import { createPrisma } from "../../db";
+import { JSON_MAX_BYTES } from "../../lib/body-limits";
+import { rateLimit } from "../../lib/rate-limit";
 import { zodErrorMessage } from "../../lib/zod";
 import { isAdminRole } from "../../roles";
 import { ENTITLEMENT_TYPES } from "../../schema/enums";
@@ -21,11 +24,26 @@ const grantSchema = z.object({
 
 export const adminCustomersRouter = new Hono<{ Bindings: Env; Variables: { session: Session } }>();
 
+adminCustomersRouter.use("*", bodyLimit({ maxSize: JSON_MAX_BYTES }));
+
 adminCustomersRouter.use("*", async (c, next) => {
   const session = await createAuth(c.env).api.getSession({ headers: c.req.raw.headers });
   if (!session) return c.json({ error: "Unauthorized" }, 401);
   if (!isAdminRole(session.user.role)) return c.json({ error: "Forbidden" }, 403);
   c.set("session", session);
+  await next();
+});
+
+adminCustomersRouter.use("*", async (c, next) => {
+  if (c.req.method !== "GET") {
+    const limited = rateLimit(c, {
+      scope: "admin-customers",
+      max: 60,
+      windowMs: 60_000,
+      key: c.get("session").user.id,
+    });
+    if (limited) return limited;
+  }
   await next();
 });
 

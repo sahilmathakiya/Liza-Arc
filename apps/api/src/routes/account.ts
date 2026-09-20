@@ -1,10 +1,15 @@
 import { Hono } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
+import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
 import { createAuth } from "../auth";
+import { JSON_MAX_BYTES } from "../lib/body-limits";
+import { rateLimit } from "../lib/rate-limit";
 import { zodErrorMessage } from "../lib/zod";
 
 export const accountRouter = new Hono<{ Bindings: Env }>();
+
+accountRouter.use("*", bodyLimit({ maxSize: JSON_MAX_BYTES }));
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1).optional(),
@@ -22,6 +27,9 @@ function errorMessage(error: unknown): { status: number; message: string } {
 }
 
 accountRouter.post("/password", async (c) => {
+  const limited = rateLimit(c, { scope: "account-password", max: 10, windowMs: 60_000 });
+  if (limited) return limited;
+
   const parsed = passwordSchema.safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) return c.json({ error: zodErrorMessage(parsed.error) }, 400);
 

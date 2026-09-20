@@ -181,7 +181,7 @@ export function UploadForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <section className="rounded-lg border border-line bg-surface p-6">
+      <section className="rounded-lg border border-line bg-surface p-6 shadow-card">
         <h2 className="text-base font-semibold text-ink">1. Product type</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {(
@@ -210,7 +210,7 @@ export function UploadForm() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-line bg-surface p-6">
+      <section className="rounded-lg border border-line bg-surface p-6 shadow-card">
         <h2 className="text-base font-semibold text-ink">2. Details</h2>
         <div className="mt-4 space-y-4">
           <FormField id="product-name" label="Name" name="name" required placeholder="40x60 Family Home" />
@@ -329,7 +329,7 @@ export function UploadForm() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-line bg-surface p-6">
+      <section className="rounded-lg border border-line bg-surface p-6 shadow-card">
         <h2 className="text-base font-semibold text-ink">3. Assets</h2>
         <p className="mt-1 text-sm text-ink-soft">Both files are required before submitting.</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">

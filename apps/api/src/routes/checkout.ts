@@ -1,8 +1,10 @@
 import { Hono } from "hono";
 import type { Context } from "hono";
-import { z } from "zod";
+import { bodyLimit } from "hono/body-limit";
 import { createAuth } from "../auth";
 import { createPrisma } from "../db";
+import { JSON_MAX_BYTES } from "../lib/body-limits";
+import { rateLimit } from "../lib/rate-limit";
 import { createRazorpayOrder, getRazorpayOrder, verifyPaymentSignature } from "../lib/razorpay";
 import { zodErrorMessage } from "../lib/zod";
 import { checkoutSchema, razorpayVerifySchema } from "../schema/order";
@@ -24,9 +26,19 @@ function getSession(c: CheckoutContext) {
 
 export const checkoutRouter = new Hono<{ Bindings: Env }>();
 
+checkoutRouter.use("*", bodyLimit({ maxSize: JSON_MAX_BYTES }));
+
 checkoutRouter.post("/", async (c) => {
   const session = await getSession(c);
   if (!session) return c.json({ error: "Unauthorized" }, 401);
+
+  const limited = rateLimit(c, {
+    scope: "checkout-create",
+    max: 10,
+    windowMs: 60_000,
+    key: session.user.id,
+  });
+  if (limited) return limited;
 
   const parsed = checkoutSchema.safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) return c.json({ error: zodErrorMessage(parsed.error) }, 400);
@@ -58,6 +70,14 @@ checkoutRouter.post("/", async (c) => {
 checkoutRouter.post("/:orderId/pay", async (c) => {
   const session = await getSession(c);
   if (!session) return c.json({ error: "Unauthorized" }, 401);
+
+  const limited = rateLimit(c, {
+    scope: "checkout-pay",
+    max: 10,
+    windowMs: 60_000,
+    key: session.user.id,
+  });
+  if (limited) return limited;
 
   const prisma = createPrisma(c.env.DATABASE_URL);
   const orderId = c.req.param("orderId");
@@ -98,6 +118,14 @@ checkoutRouter.post("/:orderId/pay", async (c) => {
 checkoutRouter.post("/:orderId/verify", async (c) => {
   const session = await getSession(c);
   if (!session) return c.json({ error: "Unauthorized" }, 401);
+
+  const limited = rateLimit(c, {
+    scope: "checkout-verify",
+    max: 20,
+    windowMs: 60_000,
+    key: session.user.id,
+  });
+  if (limited) return limited;
 
   const parsed = razorpayVerifySchema.safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) return c.json({ error: zodErrorMessage(parsed.error) }, 400);

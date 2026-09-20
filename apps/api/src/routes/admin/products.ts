@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import type { Context } from "hono";
 import type { Session } from "../../auth";
 import { createAuth } from "../../auth";
@@ -17,6 +18,8 @@ import {
   resolveUploadExtension,
   type AssetKind,
 } from "../../lib/r2";
+import { JSON_MAX_BYTES, UPLOAD_MAX_BYTES } from "../../lib/body-limits";
+import { rateLimit } from "../../lib/rate-limit";
 import { detectFileKind } from "../../lib/file-type";
 import { zodErrorMessage } from "../../lib/zod";
 import { isAdminRole } from "../../roles";
@@ -67,6 +70,19 @@ adminProductsRouter.use("*", async (c, next) => {
   await next();
 });
 
+adminProductsRouter.use("*", async (c, next) => {
+  if (c.req.method !== "GET") {
+    const limited = rateLimit(c, {
+      scope: "admin-products",
+      max: 60,
+      windowMs: 60_000,
+      key: c.get("session").user.id,
+    });
+    if (limited) return limited;
+  }
+  await next();
+});
+
 adminProductsRouter.get("/", async (c) => {
   const parsed = listQuerySchema.safeParse(c.req.query());
   if (!parsed.success) return c.json({ error: zodErrorMessage(parsed.error) }, 400);
@@ -75,7 +91,7 @@ adminProductsRouter.get("/", async (c) => {
   return c.json(result);
 });
 
-adminProductsRouter.post("/", async (c) => {
+adminProductsRouter.post("/", bodyLimit({ maxSize: JSON_MAX_BYTES }), async (c) => {
   const parsed = createProductSchema.safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) return c.json({ error: zodErrorMessage(parsed.error) }, 400);
   const prisma = createPrisma(c.env.DATABASE_URL);
@@ -95,7 +111,7 @@ adminProductsRouter.get("/:id", async (c) => {
   return c.json({ product });
 });
 
-adminProductsRouter.patch("/:id", async (c) => {
+adminProductsRouter.patch("/:id", bodyLimit({ maxSize: JSON_MAX_BYTES }), async (c) => {
   const prisma = createPrisma(c.env.DATABASE_URL);
   const product = await getProduct(prisma, c.req.param("id"));
   if (!product) return c.json({ error: "Product not found" }, 404);
@@ -130,7 +146,10 @@ adminProductsRouter.delete("/:id", async (c) => {
   return c.json({ ok: true });
 });
 
-adminProductsRouter.post("/:id/assets", async (c) => {
+adminProductsRouter.post(
+  "/:id/assets",
+  bodyLimit({ maxSize: UPLOAD_MAX_BYTES }),
+  async (c) => {
   const prisma = createPrisma(c.env.DATABASE_URL);
   const product = await getProduct(prisma, c.req.param("id"));
   if (!product) return c.json({ error: "Product not found" }, 404);
@@ -196,7 +215,8 @@ adminProductsRouter.post("/:id/assets", async (c) => {
   } catch {
     return c.json({ error: "Failed to store the file" }, 500);
   }
-});
+  },
+);
 
 /**
  * Generates and stores the blurred storefront thumbnail for an elevation image.

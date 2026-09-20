@@ -169,9 +169,6 @@ export async function confirmPurchase(prisma: Prisma, orderId: string, paymentRe
     if (order.paymentRef === paymentRef) return { ok: true as const, order };
     return { ok: false, error: "Order has already been paid", status: 409 } as CheckoutFailure;
   }
-  if (order.status === "FAILED") {
-    return { ok: false, error: "This payment failed; please start a new checkout", status: 409 } as CheckoutFailure;
-  }
 
   try {
     await prisma.$transaction(

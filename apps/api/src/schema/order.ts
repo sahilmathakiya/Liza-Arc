@@ -10,7 +10,7 @@ export type CheckoutItem = z.infer<typeof checkoutItemSchema>;
 
 export const checkoutSchema = z
   .object({
-    items: z.array(checkoutItemSchema).min(1),
+    items: z.array(checkoutItemSchema).min(1).max(10),
   })
   .refine(
     (v) => {

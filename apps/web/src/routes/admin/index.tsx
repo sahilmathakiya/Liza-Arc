@@ -43,7 +43,7 @@ function AdminHubPage() {
         }
       />
 
-      <dl className="mt-8 grid gap-px overflow-hidden rounded-[8px] border border-line bg-line-subtle sm:grid-cols-2 lg:grid-cols-5">
+      <dl className="mt-8 grid gap-px overflow-hidden rounded-[8px] border border-line bg-line-subtle shadow-card sm:grid-cols-2 lg:grid-cols-5">
         {tiles.map((tile) => (
           <div key={tile.label} className="bg-surface p-5">
             <dt className="text-[11px] font-semibold uppercase tracking-[1.2px] text-ink-faint">{tile.label}</dt>
@@ -53,7 +53,7 @@ function AdminHubPage() {
         ))}
       </dl>
 
-      <div className="mt-6 rounded-[8px] border border-line bg-surface p-5 text-sm leading-relaxed text-ink-soft">
+      <div className="mt-6 rounded-[8px] border border-line bg-surface p-5 text-sm leading-relaxed text-ink-soft shadow-card">
         Manage everything from the sidebar: upload new plans, publish products, track orders and
         support customers with access grants.
       </div>

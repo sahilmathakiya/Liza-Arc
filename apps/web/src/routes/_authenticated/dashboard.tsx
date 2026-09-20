@@ -49,7 +49,7 @@ function DashboardPage() {
       </header>
 
       <Container className="max-w-2xl py-10">
-         <div className="rounded-[8px] border border-line bg-surface p-8 shadow-[0_4px_25px_rgba(0,0,0,.14)_inset]">
+          <div className="rounded-[8px] border border-line bg-surface p-8 shadow-card">
            <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">Account / profile</p>
            <h1 className="mt-3 text-3xl font-black tracking-tight text-ink">Account</h1>
            <p className="mt-2 text-sm text-ink-soft">You are signed in.</p>
@@ -93,7 +93,7 @@ function DashboardPage() {
           </div>
         </div>
 
-         <div className="mt-6 rounded-[8px] border border-line bg-surface p-8">
+          <div className="mt-6 rounded-[8px] border border-line bg-surface p-8 shadow-card">
            <h2 className="text-xl font-bold tracking-tight text-ink">
             {hasPassword ? 'Change password' : 'Set password'}
           </h2>

@@ -7,7 +7,7 @@ export function InteriorCard({ product }: { product: InteriorPlanPublic }) {
     <Link
       to="/interiors/$slug"
       params={{ slug: product.slug }}
-      className="group flex flex-col overflow-hidden rounded-[8px] border border-line bg-surface transition hover:border-line-strong hover:shadow-[0_8px_24px_rgba(0,0,0,.24)]"
+      className="group flex flex-col overflow-hidden rounded-[8px] border border-line bg-surface shadow-card transition hover:border-line-strong hover:shadow-card-hover"
     >
       <div className="h-44 border-b border-line bg-surface-muted">
         {product.hasPreview ? (

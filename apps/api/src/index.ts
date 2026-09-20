@@ -1,6 +1,8 @@
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
 import { createAuth } from "./auth";
+import { JSON_MAX_BYTES } from "./lib/body-limits";
 import { accountRouter } from "./routes/account";
 import { adminRouter } from "./routes/admin";
 import { adminCustomersRouter } from "./routes/admin/customers";
@@ -34,6 +36,19 @@ app.use(
     credentials: true,
   }),
 );
+
+app.use("*", async (c, next) => {
+  const method = c.req.method;
+  if (method !== "GET" && method !== "HEAD" && method !== "OPTIONS") {
+    const origin = c.req.header("origin");
+    if (origin && !isAllowedOrigin(origin, c.env.WEB_URL)) {
+      return c.json({ error: "Invalid origin" }, 403);
+    }
+  }
+  return next();
+});
+
+app.use("/api/auth/*", bodyLimit({ maxSize: JSON_MAX_BYTES }));
 
 app.get("/", (c) => c.json({ name: "api", status: "ok" }));
 

@@ -74,7 +74,7 @@ function AboutPage() {
 
       <section>
         <Container className="py-16">
-          <div className="flex flex-wrap items-center justify-between gap-6 rounded-lg border border-line bg-surface p-8">
+          <div className="flex flex-wrap items-center justify-between gap-6 rounded-lg border border-line bg-surface p-8 shadow-card">
             <div>
               <h2 className="text-xl font-semibold tracking-tight text-ink">
                 Have a plot in mind?

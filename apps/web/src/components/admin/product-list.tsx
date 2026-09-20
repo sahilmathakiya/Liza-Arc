@@ -123,7 +123,7 @@ export function ProductList({ products }: { products: Product[] }) {
 
   return (
     <div>
-       <div className="sleek-scrollbar overflow-x-auto rounded-[8px] border border-line bg-surface">
+        <div className="sleek-scrollbar overflow-x-auto rounded-[8px] border border-line bg-surface shadow-card">
         <table className="w-full text-left text-sm">
           <thead>
              <tr className="border-b border-line text-[11px] font-semibold uppercase tracking-[1.2px] text-ink-faint">
