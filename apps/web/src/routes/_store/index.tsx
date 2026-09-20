@@ -270,7 +270,7 @@ function HomePage() {
 
       <section>
         <Container className="py-16">
-          <div className="rounded-[8px] border border-line bg-surface p-6 text-center sm:px-12 sm:py-12">
+          <div className="rounded-[8px] border border-line bg-surface p-6 text-center shadow-card sm:px-12 sm:py-12">
             <p className="text-xs font-semibold uppercase tracking-[1.4px] text-brand">Start with the right foundation</p>
             <h2 className="mt-4 font-display text-3xl font-normal tracking-tight text-ink sm:text-4xl">
               Find the plan that fits.

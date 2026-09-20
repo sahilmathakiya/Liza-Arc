@@ -47,7 +47,7 @@ function AdminDashboardPage() {
             (usedSlots < maxAdmins ? (
               <CreateAdminForm onCreated={() => router.invalidate()} />
             ) : (
-              <div className="rounded-lg border border-line bg-surface p-6 text-sm text-ink-soft">
+              <div className="rounded-lg border border-line bg-surface p-6 text-sm text-ink-soft shadow-card">
                 Admin limit reached ({usedSlots}/{maxAdmins}).
               </div>
             ))}

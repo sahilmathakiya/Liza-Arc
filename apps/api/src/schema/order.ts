@@ -10,7 +10,7 @@ export type CheckoutItem = z.infer<typeof checkoutItemSchema>;
 
 export const checkoutSchema = z
   .object({
-    items: z.array(checkoutItemSchema).min(1),
+    items: z.array(checkoutItemSchema).min(1).max(10),
   })
   .refine(
     (v) => {
@@ -22,9 +22,10 @@ export const checkoutSchema = z
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 
-export const confirmPaymentSchema = z.object({
-  orderId: z.string().min(1),
-  paymentRef: z.string().trim().min(1).max(200),
+export const razorpayVerifySchema = z.object({
+  razorpayOrderId: z.string().min(1).max(100),
+  razorpayPaymentId: z.string().min(1).max(100),
+  razorpaySignature: z.string().min(1).max(128),
 });
 
-export type ConfirmPaymentInput = z.infer<typeof confirmPaymentSchema>;
+export type RazorpayVerifyInput = z.infer<typeof razorpayVerifySchema>;

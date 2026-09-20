@@ -12,3 +12,10 @@ WEB_URL="http://localhost:3000"
 GOOGLE_CLIENT_ID="xxx.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="xxx"
 ADMIN_KEY="a-long-random-secret-key"
+# Razorpay (Test mode keys from Dashboard > Settings > API Keys)
+RAZORPAY_KEY_ID="rzp_test_xxxxxxxxxxxx"
+RAZORPAY_KEY_SECRET="secret-xxxxxxxxxxxxxxxx"
+# Only needed for the webhook endpoint, which must be publicly reachable.
+# Generated in Dashboard > Settings > Webhooks when you add the webhook URL.
+# Safe to leave empty in local dev.
+RAZORPAY_WEBHOOK_SECRET=""

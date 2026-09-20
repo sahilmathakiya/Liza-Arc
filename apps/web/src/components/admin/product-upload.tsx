@@ -88,7 +88,7 @@ export function ProductUpload({
   }
 
   return (
-    <div className="rounded-lg border border-line bg-surface p-6">
+    <div className="rounded-lg border border-line bg-surface p-6 shadow-card">
       <h2 className="text-base font-semibold text-ink">Upload assets</h2>
       {products.length === 0 ? (
         <div className="mt-4">

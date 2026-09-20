@@ -61,7 +61,7 @@ function InteriorDetailPage() {
             )}
           </div>
 
-          <div className="rounded-lg border border-line bg-surface p-6">
+          <div className="rounded-lg border border-line bg-surface p-6 shadow-card">
             <p className="text-xs font-medium uppercase tracking-wide text-ink-faint">
               {INTERIOR_CATEGORY_LABELS[interiorPlan.category]}
             </p>

@@ -33,7 +33,7 @@ export function CreateAdminForm({ onCreated }: { onCreated: () => void }) {
   }
 
   return (
-    <div className="rounded-lg border border-line bg-surface p-6">
+    <div className="rounded-lg border border-line bg-surface p-6 shadow-card">
       <h2 className="text-base font-semibold text-ink">Create admin</h2>
       <p className="mt-1 text-sm text-ink-soft">
         Admins can view the dashboard but cannot create other admins.

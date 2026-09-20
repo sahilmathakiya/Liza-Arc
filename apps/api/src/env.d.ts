@@ -7,6 +7,9 @@ declare global {
     GOOGLE_CLIENT_SECRET: string;
     WEB_URL: string;
     ADMIN_KEY: string;
+    RAZORPAY_KEY_ID: string;
+    RAZORPAY_KEY_SECRET: string;
+    RAZORPAY_WEBHOOK_SECRET: string;
     BUCKET: R2Bucket;
   }
 }

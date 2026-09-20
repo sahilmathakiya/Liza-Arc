@@ -169,9 +169,6 @@ export async function confirmPurchase(prisma: Prisma, orderId: string, paymentRe
     if (order.paymentRef === paymentRef) return { ok: true as const, order };
     return { ok: false, error: "Order has already been paid", status: 409 } as CheckoutFailure;
   }
-  if (order.status === "FAILED") {
-    return { ok: false, error: "This payment failed; please start a new checkout", status: 409 } as CheckoutFailure;
-  }
 
   try {
     await prisma.$transaction(
@@ -232,6 +229,20 @@ export function getUserOrder(prisma: Prisma, orderId: string, userId: string) {
   return prisma.order.findFirst({
     where: { id: orderId, userId },
     include: ORDER_INCLUDE,
+  });
+}
+
+export function findOrderIdByRazorpayOrderId(prisma: Prisma, razorpayOrderId: string) {
+  return prisma.order.findFirst({
+    where: { razorpayOrderId },
+    select: { id: true },
+  });
+}
+
+export function findOrderIdByReceipt(prisma: Prisma, receipt: string) {
+  return prisma.order.findUnique({
+    where: { id: receipt },
+    select: { id: true },
   });
 }
 

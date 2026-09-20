@@ -1,6 +1,8 @@
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
 import { createAuth } from "./auth";
+import { JSON_MAX_BYTES } from "./lib/body-limits";
 import { accountRouter } from "./routes/account";
 import { adminRouter } from "./routes/admin";
 import { adminCustomersRouter } from "./routes/admin/customers";
@@ -9,6 +11,7 @@ import { adminProductsRouter } from "./routes/admin/products";
 import { assetsRouter } from "./routes/assets";
 import { checkoutRouter } from "./routes/checkout";
 import { publicProductsRouter } from "./routes/products";
+import { webhooksRouter } from "./routes/webhooks";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -34,6 +37,19 @@ app.use(
   }),
 );
 
+app.use("*", async (c, next) => {
+  const method = c.req.method;
+  if (method !== "GET" && method !== "HEAD" && method !== "OPTIONS") {
+    const origin = c.req.header("origin");
+    if (origin && !isAllowedOrigin(origin, c.env.WEB_URL)) {
+      return c.json({ error: "Invalid origin" }, 403);
+    }
+  }
+  return next();
+});
+
+app.use("/api/auth/*", bodyLimit({ maxSize: JSON_MAX_BYTES }));
+
 app.get("/", (c) => c.json({ name: "api", status: "ok" }));
 
 app.on(["GET", "POST"], "/api/auth/*", (c) => createAuth(c.env).handler(c.req.raw));
@@ -51,6 +67,8 @@ app.route("/api/products", publicProductsRouter);
 app.route("/api/assets", assetsRouter);
 
 app.route("/api/checkout", checkoutRouter);
+
+app.route("/api/webhooks", webhooksRouter);
 
 app.route("/api/account", accountRouter);
 

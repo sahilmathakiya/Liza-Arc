@@ -11,7 +11,7 @@ export function CatalogSkeleton({ cards = 6 }: { cards?: number }) {
       <Skeleton className="mt-6 h-40 w-full rounded-lg" />
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: cards }).map((_, index) => (
-          <div key={index} className="overflow-hidden rounded-lg border border-line bg-surface">
+          <div key={index} className="overflow-hidden rounded-lg border border-line bg-surface shadow-card">
             <Skeleton className="h-44 w-full rounded-none" />
             <div className="space-y-2 p-4">
               <Skeleton className="h-4 w-3/4" />
