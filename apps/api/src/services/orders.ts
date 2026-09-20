@@ -235,6 +235,20 @@ export function getUserOrder(prisma: Prisma, orderId: string, userId: string) {
   });
 }
 
+export function findOrderIdByRazorpayOrderId(prisma: Prisma, razorpayOrderId: string) {
+  return prisma.order.findFirst({
+    where: { razorpayOrderId },
+    select: { id: true },
+  });
+}
+
+export function findOrderIdByReceipt(prisma: Prisma, receipt: string) {
+  return prisma.order.findUnique({
+    where: { id: receipt },
+    select: { id: true },
+  });
+}
+
 export async function listAdminOrders(
   prisma: Prisma,
   opts: { status?: OrderStatus; page: number; limit: number },

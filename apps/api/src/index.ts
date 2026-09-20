@@ -9,6 +9,7 @@ import { adminProductsRouter } from "./routes/admin/products";
 import { assetsRouter } from "./routes/assets";
 import { checkoutRouter } from "./routes/checkout";
 import { publicProductsRouter } from "./routes/products";
+import { webhooksRouter } from "./routes/webhooks";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -51,6 +52,8 @@ app.route("/api/products", publicProductsRouter);
 app.route("/api/assets", assetsRouter);
 
 app.route("/api/checkout", checkoutRouter);
+
+app.route("/api/webhooks", webhooksRouter);
 
 app.route("/api/account", accountRouter);
 

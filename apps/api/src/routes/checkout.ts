@@ -3,22 +3,20 @@ import type { Context } from "hono";
 import { z } from "zod";
 import { createAuth } from "../auth";
 import { createPrisma } from "../db";
+import { createRazorpayOrder, getRazorpayOrder, verifyPaymentSignature } from "../lib/razorpay";
 import { zodErrorMessage } from "../lib/zod";
-import { checkoutSchema } from "../schema/order";
+import { checkoutSchema, razorpayVerifySchema } from "../schema/order";
 import { listUserEntitlements } from "../services/entitlements";
 import {
   ENTITLEMENT_DOWNLOAD_KIND,
   confirmPurchase,
   createCheckout,
-  failPurchase,
   getUserOrder,
   listUserOrders,
   withAccessExpiry,
 } from "../services/orders";
 
 type CheckoutContext = Context<{ Bindings: Env }>;
-
-const paySchema = z.object({ result: z.enum(["success", "fail"]) });
 
 function getSession(c: CheckoutContext) {
   return createAuth(c.env).api.getSession({ headers: c.req.raw.headers });
@@ -65,17 +63,71 @@ checkoutRouter.post("/:orderId/pay", async (c) => {
   const orderId = c.req.param("orderId");
   const order = await getUserOrder(prisma, orderId, session.user.id);
   if (!order) return c.json({ error: "Order not found" }, 404);
-
-  const parsed = paySchema.safeParse(await c.req.json().catch(() => null));
-  if (!parsed.success) return c.json({ error: zodErrorMessage(parsed.error) }, 400);
-
-  if (parsed.data.result === "fail") {
-    const failed = await failPurchase(prisma, orderId);
-    if (!failed.ok) return c.json({ error: failed.error }, failed.status);
-    return c.json({ orderId, status: "FAILED" });
+  if (order.status === "PAID") {
+    return c.json({ error: "Order has already been paid" }, 409);
+  }
+  if (order.status === "FAILED") {
+    return c.json({ error: "This payment failed; please start a new checkout" }, 409);
   }
 
-  const confirmed = await confirmPurchase(prisma, orderId, `mock-${orderId}`);
+  const razorpayOrder = await createRazorpayOrder(c.env, {
+    amountCents: order.totalCents,
+    currency: order.currency,
+    receipt: order.id,
+    notes: { orderId: order.id },
+  });
+  if (!razorpayOrder) {
+    return c.json({ error: "The payment gateway is unavailable, please try again" }, 502);
+  }
+
+  await prisma.order.update({
+    where: { id: order.id },
+    data: { razorpayOrderId: razorpayOrder.id },
+  });
+
+  return c.json({
+    orderId: order.id,
+    keyId: c.env.RAZORPAY_KEY_ID,
+    razorpayOrderId: razorpayOrder.id,
+    amount: razorpayOrder.amount,
+    currency: razorpayOrder.currency,
+    prefill: { name: session.user.name, email: session.user.email },
+  });
+});
+
+checkoutRouter.post("/:orderId/verify", async (c) => {
+  const session = await getSession(c);
+  if (!session) return c.json({ error: "Unauthorized" }, 401);
+
+  const parsed = razorpayVerifySchema.safeParse(await c.req.json().catch(() => null));
+  if (!parsed.success) return c.json({ error: zodErrorMessage(parsed.error) }, 400);
+
+  const prisma = createPrisma(c.env.DATABASE_URL);
+  const orderId = c.req.param("orderId");
+  const order = await getUserOrder(prisma, orderId, session.user.id);
+  if (!order) return c.json({ error: "Order not found" }, 404);
+
+  const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = parsed.data;
+  const signatureValid = await verifyPaymentSignature(c.env.RAZORPAY_KEY_SECRET, {
+    razorpayOrderId,
+    razorpayPaymentId,
+    signature: razorpaySignature,
+  });
+  if (!signatureValid) return c.json({ error: "Payment verification failed" }, 400);
+
+  if (razorpayOrderId !== order.razorpayOrderId) {
+    const razorpayOrder = await getRazorpayOrder(c.env, razorpayOrderId);
+    if (
+      !razorpayOrder ||
+      razorpayOrder.receipt !== orderId ||
+      razorpayOrder.amount !== order.totalCents ||
+      razorpayOrder.currency !== order.currency
+    ) {
+      return c.json({ error: "Payment does not match this order" }, 400);
+    }
+  }
+
+  const confirmed = await confirmPurchase(prisma, orderId, razorpayPaymentId);
   if (!confirmed.ok) return c.json({ error: confirmed.error }, confirmed.status);
   return c.json({ orderId, status: "PAID" });
 });
