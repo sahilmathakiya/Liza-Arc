@@ -49,8 +49,6 @@ async function createAccount(
 
 export const adminRouter = new Hono<{ Bindings: Env }>();
 
-adminRouter.use("*", bodyLimit({ maxSize: JSON_MAX_BYTES }));
-
 adminRouter.get("/signup-open", async (c) => {
   const prisma = createPrisma(c.env.DATABASE_URL);
   const superAdmin = await prisma.user.findFirst({
@@ -60,7 +58,7 @@ adminRouter.get("/signup-open", async (c) => {
   return c.json({ open: !superAdmin });
 });
 
-adminRouter.post("/signup", async (c) => {
+adminRouter.post("/signup", bodyLimit({ maxSize: JSON_MAX_BYTES }), async (c) => {
   const limited = rateLimit(c, { scope: "admin-signup", max: 5, windowMs: 60_000 });
   if (limited) return limited;
 
@@ -89,7 +87,7 @@ adminRouter.post("/signup", async (c) => {
   return c.json({ ok: true });
 });
 
-adminRouter.post("/create", async (c) => {
+adminRouter.post("/create", bodyLimit({ maxSize: JSON_MAX_BYTES }), async (c) => {
   const session = await getSession(c);
   if (!session) return c.json({ error: "Unauthorized" }, 401);
   if (session.user.role !== ROLE.superAdmin) {

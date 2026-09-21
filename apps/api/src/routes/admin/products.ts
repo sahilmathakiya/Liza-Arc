@@ -148,7 +148,10 @@ adminProductsRouter.delete("/:id", async (c) => {
 
 adminProductsRouter.post(
   "/:id/assets",
-  bodyLimit({ maxSize: UPLOAD_MAX_BYTES }),
+  bodyLimit({
+    maxSize: UPLOAD_MAX_BYTES,
+    onError: (c) => c.json({ error: "Upload exceeds the 101MB limit" }, 413),
+  }),
   async (c) => {
   const prisma = createPrisma(c.env.DATABASE_URL);
   const product = await getProduct(prisma, c.req.param("id"));

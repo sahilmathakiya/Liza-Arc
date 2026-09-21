@@ -10,4 +10,4 @@ WEB_URL = "https://liza-arch-web.pages.dev"
 [[r2_buckets]]
 binding = "BUCKET"
 bucket_name = "liza-arch-storage"
-preview_bucket_name = "testing-bucket"
+preview_bucket_name = "liza-arch-storage"
