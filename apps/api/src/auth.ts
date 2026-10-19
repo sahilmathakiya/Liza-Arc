@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { createPrisma, getPrisma } from "./db";
 import type { Prisma } from "./db";
+import { hashPassword, verifyPassword } from "./lib/password";
 
 export function createAuth(env: Env, prisma: Prisma = createPrisma(env.DATABASE_URL)) {
   const crossSiteCookies = env.BETTER_AUTH_URL.startsWith("https://");
@@ -27,6 +28,10 @@ export function createAuth(env: Env, prisma: Prisma = createPrisma(env.DATABASE_
     },
     emailAndPassword: {
       enabled: true,
+      password: {
+        hash: hashPassword,
+        verify: ({ password, hash }) => verifyPassword(password, hash),
+      },
     },
     socialProviders: {
       google: {

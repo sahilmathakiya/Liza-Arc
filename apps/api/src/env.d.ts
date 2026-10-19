@@ -31,6 +31,7 @@ declare global {
     RL_CHECKOUT_VERIFY: RateLimit;
     RL_ACCOUNT: RateLimit;
     RL_WEBHOOK: RateLimit;
+    RL_CATALOG: RateLimit;
   }
 }
 

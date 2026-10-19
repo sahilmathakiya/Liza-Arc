@@ -1,11 +1,21 @@
 import { Hono } from "hono";
 import { getSession as getSessionFor } from "../auth";
 import { getPrisma } from "../db";
+import { rateLimit } from "../lib/rate-limit";
 import { zodErrorMessage } from "../lib/zod";
 import { floorPlanListQuerySchema, interiorPlanListQuerySchema } from "../schema/product";
 import { getPublicProductBySlug, listPublicFloorPlans, listPublicInteriorPlans } from "../services/products";
 
 export const publicProductsRouter = new Hono<{ Bindings: Env }>();
+
+// Catalog endpoints hit the database and are unauthenticated: a per-IP limit
+// keeps scraping/abuse from piling load onto Neon. 120/min is far above normal
+// storefront browsing.
+publicProductsRouter.use("*", async (c, next) => {
+  const limited = await rateLimit(c, "RL_CATALOG");
+  if (limited) return limited;
+  return next();
+});
 
 publicProductsRouter.get("/", async (c) => {
   const prisma = getPrisma(c);

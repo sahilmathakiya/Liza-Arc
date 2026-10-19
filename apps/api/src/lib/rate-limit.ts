@@ -12,7 +12,7 @@ import { logWarn } from "./log";
  * in-memory fallback when a binding is unavailable (tests, misconfiguration).
  */
 export const RATE_LIMITS = {
-  RL_AUTH: { limit: 20, period: 60 },
+  RL_AUTH: { limit: 5, period: 60 },
   RL_ADMIN_SIGNUP: { limit: 5, period: 60 },
   RL_ADMIN_WRITE: { limit: 60, period: 60 },
   RL_UPLOAD: { limit: 30, period: 60 },
@@ -24,6 +24,7 @@ export const RATE_LIMITS = {
   RL_CHECKOUT_VERIFY: { limit: 20, period: 60 },
   RL_ACCOUNT: { limit: 10, period: 60 },
   RL_WEBHOOK: { limit: 600, period: 60 },
+  RL_CATALOG: { limit: 120, period: 60 },
 } as const satisfies Record<string, { limit: number; period: 10 | 60 }>;
 
 export type RateLimitName = keyof typeof RATE_LIMITS;

@@ -53,12 +53,25 @@ app.use("*", async (c, next) => {
 
 app.use("/api/auth/*", bodyLimit({ maxSize: JSON_MAX_BYTES }));
 
-// Sign-in/sign-up hash passwords (CPU heavy on a 10ms budget): throttle per IP.
-// GET (session reads) is left unthrottled; it is cheap and called on every page.
+// Password hashing is the most expensive thing the Worker does, and attackers
+// use it for brute force: throttle per IP and per email. GET (session reads)
+// is cheap, called on every page load, and left unthrottled. The body is read
+// from a clone so the auth handler below still receives the original request.
 app.use("/api/auth/*", async (c, next) => {
   if (c.req.method === "POST") {
     const limited = await rateLimit(c, "RL_AUTH");
     if (limited) return limited;
+
+    try {
+      const body = (await c.req.raw.clone().json()) as { email?: unknown } | null;
+      const email = body && typeof body.email === "string" ? body.email.trim().toLowerCase() : null;
+      if (email) {
+        const byEmail = await rateLimit(c, "RL_AUTH", `email:${email}`);
+        if (byEmail) return byEmail;
+      }
+    } catch {
+      // Not JSON (e.g. a future form-based auth flow): only the IP limit applies.
+    }
   }
   return next();
 });
