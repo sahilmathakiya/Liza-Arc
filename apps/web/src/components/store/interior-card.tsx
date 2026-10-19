@@ -12,7 +12,7 @@ export function InteriorCard({ product }: { product: InteriorPlanPublic }) {
       <div className="h-44 border-b border-line bg-surface-muted">
         {product.hasPreview ? (
           <img
-            src={interiorPreviewUrl(product.id, 'card')}
+            src={interiorPreviewUrl(product.id, 'card', product.previewVersion)}
             alt={`Preview of ${product.name}`}
             loading="lazy"
             decoding="async"

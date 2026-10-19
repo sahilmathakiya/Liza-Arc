@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import type { Context } from "hono";
-import { createAuth } from "../auth";
-import { createPrisma } from "../db";
+import { getAuth, getSession as getSessionFor } from "../auth";
+import { getPrisma } from "../db";
 import { JSON_MAX_BYTES } from "../lib/body-limits";
 import { rateLimit } from "../lib/rate-limit";
 import { MAX_ADMINS, ROLE, isAdminRole } from "../roles";
@@ -19,7 +19,7 @@ function parseAccountBody(raw: unknown): { name: string; email: string; password
 }
 
 async function getSession(c: AdminContext) {
-  return createAuth(c.env).api.getSession({ headers: c.req.raw.headers });
+  return getSessionFor(c);
 }
 
 async function createAccount(
@@ -27,13 +27,13 @@ async function createAccount(
   input: { name: string; email: string; password: string; role: Role },
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
-    const auth = createAuth(c.env);
+    const auth = getAuth(c);
     const result = await auth.api.signUpEmail({
       body: { name: input.name, email: input.email, password: input.password },
     });
     if (!result?.user?.id) return { ok: false, error: "Failed to create account" };
 
-    const prisma = createPrisma(c.env.DATABASE_URL);
+    const prisma = getPrisma(c);
     await prisma.user.update({
       where: { id: result.user.id },
       data: { role: input.role },
@@ -50,7 +50,7 @@ async function createAccount(
 export const adminRouter = new Hono<{ Bindings: Env }>();
 
 adminRouter.get("/signup-open", async (c) => {
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const superAdmin = await prisma.user.findFirst({
     where: { role: ROLE.superAdmin },
     select: { id: true },
@@ -59,7 +59,7 @@ adminRouter.get("/signup-open", async (c) => {
 });
 
 adminRouter.post("/signup", bodyLimit({ maxSize: JSON_MAX_BYTES }), async (c) => {
-  const limited = rateLimit(c, { scope: "admin-signup", max: 5, windowMs: 60_000 });
+  const limited = await rateLimit(c, "RL_ADMIN_SIGNUP");
   if (limited) return limited;
 
   const raw = await c.req.json().catch(() => null);
@@ -73,7 +73,7 @@ adminRouter.post("/signup", bodyLimit({ maxSize: JSON_MAX_BYTES }), async (c) =>
     return c.json({ error: "Name, a valid email and a password of at least 8 characters are required" }, 400);
   }
 
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const existingSuperAdmin = await prisma.user.findFirst({
     where: { role: ROLE.superAdmin },
     select: { id: true },
@@ -94,12 +94,7 @@ adminRouter.post("/create", bodyLimit({ maxSize: JSON_MAX_BYTES }), async (c) =>
     return c.json({ error: "Only the super admin can create admins" }, 403);
   }
 
-  const limited = rateLimit(c, {
-    scope: "admin-create",
-    max: 60,
-    windowMs: 60_000,
-    key: session.user.id,
-  });
+  const limited = await rateLimit(c, "RL_ADMIN_WRITE", session.user.id);
   if (limited) return limited;
 
   const body = parseAccountBody(await c.req.json().catch(() => null));
@@ -107,7 +102,7 @@ adminRouter.post("/create", bodyLimit({ maxSize: JSON_MAX_BYTES }), async (c) =>
     return c.json({ error: "Name, a valid email and a password of at least 8 characters are required" }, 400);
   }
 
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const adminCount = await prisma.user.count({ where: { role: ROLE.admin } });
   if (adminCount >= MAX_ADMINS) {
     return c.json({ error: `Admin limit reached (max ${MAX_ADMINS})` }, 403);
@@ -123,7 +118,7 @@ adminRouter.get("/stats", async (c) => {
   if (!session) return c.json({ error: "Unauthorized" }, 401);
   if (!isAdminRole(session.user.role)) return c.json({ error: "Forbidden" }, 403);
 
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const [productCount, publishedCount, orderCount, pendingOrders, paidRevenue, customerCount, entitlementCount] =
     await Promise.all([
       prisma.product.count(),
@@ -150,7 +145,7 @@ adminRouter.get("/list", async (c) => {
   if (!session) return c.json({ error: "Unauthorized" }, 401);
   if (!isAdminRole(session.user.role)) return c.json({ error: "Forbidden" }, 403);
 
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const admins = await prisma.user.findMany({
     where: { role: { in: [ROLE.admin, ROLE.superAdmin] } },
     select: { id: true, name: true, email: true, role: true, createdAt: true },

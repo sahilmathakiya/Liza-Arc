@@ -2,8 +2,8 @@ import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
 import type { Session } from "../../auth";
-import { createAuth } from "../../auth";
-import { createPrisma } from "../../db";
+import { getSession as getSessionFor } from "../../auth";
+import { getPrisma } from "../../db";
 import { JSON_MAX_BYTES } from "../../lib/body-limits";
 import { rateLimit } from "../../lib/rate-limit";
 import { zodErrorMessage } from "../../lib/zod";
@@ -27,7 +27,7 @@ export const adminCustomersRouter = new Hono<{ Bindings: Env; Variables: { sessi
 adminCustomersRouter.use("*", bodyLimit({ maxSize: JSON_MAX_BYTES }));
 
 adminCustomersRouter.use("*", async (c, next) => {
-  const session = await createAuth(c.env).api.getSession({ headers: c.req.raw.headers });
+  const session = await getSessionFor(c);
   if (!session) return c.json({ error: "Unauthorized" }, 401);
   if (!isAdminRole(session.user.role)) return c.json({ error: "Forbidden" }, 403);
   c.set("session", session);
@@ -36,12 +36,7 @@ adminCustomersRouter.use("*", async (c, next) => {
 
 adminCustomersRouter.use("*", async (c, next) => {
   if (c.req.method !== "GET") {
-    const limited = rateLimit(c, {
-      scope: "admin-customers",
-      max: 60,
-      windowMs: 60_000,
-      key: c.get("session").user.id,
-    });
+    const limited = await rateLimit(c, "RL_ADMIN_WRITE", c.get("session").user.id);
     if (limited) return limited;
   }
   await next();
@@ -50,13 +45,13 @@ adminCustomersRouter.use("*", async (c, next) => {
 adminCustomersRouter.get("/", async (c) => {
   const parsed = listQuerySchema.safeParse(c.req.query());
   if (!parsed.success) return c.json({ error: zodErrorMessage(parsed.error) }, 400);
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const result = await listAdminCustomers(prisma, parsed.data);
   return c.json(result);
 });
 
 adminCustomersRouter.get("/:id", async (c) => {
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const customer = await getAdminCustomer(prisma, c.req.param("id"));
   if (!customer) return c.json({ error: "Customer not found" }, 404);
   return c.json({ customer });
@@ -65,14 +60,14 @@ adminCustomersRouter.get("/:id", async (c) => {
 adminCustomersRouter.post("/:id/entitlements", async (c) => {
   const parsed = grantSchema.safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) return c.json({ error: zodErrorMessage(parsed.error) }, 400);
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const result = await grantEntitlement(prisma, c.req.param("id"), parsed.data.productId, parsed.data.type);
   if (!result.ok) return c.json({ error: result.error }, result.status);
   return c.json({ entitlement: result.entitlement }, 201);
 });
 
 adminCustomersRouter.delete("/:id/entitlements/:entitlementId", async (c) => {
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const result = await revokeEntitlement(prisma, c.req.param("id"), c.req.param("entitlementId"));
   if (!result.ok) return c.json({ error: result.error }, result.status);
   return c.json({ ok: true });

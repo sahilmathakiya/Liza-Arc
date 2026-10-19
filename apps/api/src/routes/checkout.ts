@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import type { Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
-import { createAuth } from "../auth";
-import { createPrisma } from "../db";
+import { getSession as getSessionFor } from "../auth";
+import { getPrisma } from "../db";
 import { JSON_MAX_BYTES } from "../lib/body-limits";
 import { rateLimit } from "../lib/rate-limit";
 import { createRazorpayOrder, getRazorpayOrder, verifyPaymentSignature } from "../lib/razorpay";
@@ -21,7 +21,7 @@ import {
 type CheckoutContext = Context<{ Bindings: Env }>;
 
 function getSession(c: CheckoutContext) {
-  return createAuth(c.env).api.getSession({ headers: c.req.raw.headers });
+  return getSessionFor(c);
 }
 
 export const checkoutRouter = new Hono<{ Bindings: Env }>();
@@ -32,18 +32,13 @@ checkoutRouter.post("/", async (c) => {
   const session = await getSession(c);
   if (!session) return c.json({ error: "Unauthorized" }, 401);
 
-  const limited = rateLimit(c, {
-    scope: "checkout-create",
-    max: 10,
-    windowMs: 60_000,
-    key: session.user.id,
-  });
+  const limited = await rateLimit(c, "RL_CHECKOUT", session.user.id);
   if (limited) return limited;
 
   const parsed = checkoutSchema.safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) return c.json({ error: zodErrorMessage(parsed.error) }, 400);
 
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const result = await createCheckout(prisma, session.user.id, parsed.data.items);
   if (!result.ok) return c.json({ error: result.error }, result.status);
 
@@ -71,15 +66,10 @@ checkoutRouter.post("/:orderId/pay", async (c) => {
   const session = await getSession(c);
   if (!session) return c.json({ error: "Unauthorized" }, 401);
 
-  const limited = rateLimit(c, {
-    scope: "checkout-pay",
-    max: 10,
-    windowMs: 60_000,
-    key: session.user.id,
-  });
+  const limited = await rateLimit(c, "RL_CHECKOUT", `pay:${session.user.id}`);
   if (limited) return limited;
 
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const orderId = c.req.param("orderId");
   const order = await getUserOrder(prisma, orderId, session.user.id);
   if (!order) return c.json({ error: "Order not found" }, 404);
@@ -119,18 +109,13 @@ checkoutRouter.post("/:orderId/verify", async (c) => {
   const session = await getSession(c);
   if (!session) return c.json({ error: "Unauthorized" }, 401);
 
-  const limited = rateLimit(c, {
-    scope: "checkout-verify",
-    max: 20,
-    windowMs: 60_000,
-    key: session.user.id,
-  });
+  const limited = await rateLimit(c, "RL_CHECKOUT_VERIFY", session.user.id);
   if (limited) return limited;
 
   const parsed = razorpayVerifySchema.safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) return c.json({ error: zodErrorMessage(parsed.error) }, 400);
 
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const orderId = c.req.param("orderId");
   const order = await getUserOrder(prisma, orderId, session.user.id);
   if (!order) return c.json({ error: "Order not found" }, 404);
@@ -163,7 +148,7 @@ checkoutRouter.post("/:orderId/verify", async (c) => {
 checkoutRouter.get("/orders", async (c) => {
   const session = await getSession(c);
   if (!session) return c.json({ error: "Unauthorized" }, 401);
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const orders = await listUserOrders(prisma, session.user.id);
   return c.json({ orders: orders.map(withAccessExpiry) });
 });
@@ -171,7 +156,7 @@ checkoutRouter.get("/orders", async (c) => {
 checkoutRouter.get("/orders/:id", async (c) => {
   const session = await getSession(c);
   if (!session) return c.json({ error: "Unauthorized" }, 401);
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const order = await getUserOrder(prisma, c.req.param("id"), session.user.id);
   if (!order) return c.json({ error: "Order not found" }, 404);
   return c.json({ order: withAccessExpiry(order) });
@@ -180,7 +165,7 @@ checkoutRouter.get("/orders/:id", async (c) => {
 checkoutRouter.get("/entitlements", async (c) => {
   const session = await getSession(c);
   if (!session) return c.json({ error: "Unauthorized" }, 401);
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const rows = await listUserEntitlements(prisma, session.user.id);
   return c.json({
     entitlements: rows.map((row) => ({
