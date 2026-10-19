@@ -6,8 +6,85 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 BETTER_AUTH_URL = "https://api.lizaarch.workers.dev"
 WEB_URL = "https://liza-arch-web.pages.dev"
+# Bucket name used for presigned direct-to-R2 uploads (S3 API). Must match the
+# bucket behind the BUCKET binding; override in .dev.vars for local/remote dev.
+R2_BUCKET_NAME = "liza-arch-storage"
 
 [[r2_buckets]]
 binding = "BUCKET"
 bucket_name = "liza-arch-storage"
-preview_bucket_name = "liza-arch-storage"
+# Never point dev at the production bucket.
+preview_bucket_name = "testing-bucket"
+
+# Cloudflare Images: thumbnail/preview derivatives are produced here, outside
+# the Worker's 10ms CPU / 128MB memory budget.
+[images]
+binding = "IMAGES"
+
+[observability]
+enabled = true
+
+# ---------------------------------------------------------------------------
+# Rate limits (shared across isolates, counted per Cloudflare location).
+# period must be 10 or 60 seconds. Keep in sync with src/lib/rate-limit.ts.
+# namespace_id must be unique within the Cloudflare account.
+# ---------------------------------------------------------------------------
+[[ratelimits]]
+name = "RL_AUTH"
+namespace_id = "4101"
+simple = { limit = 20, period = 60 }
+
+[[ratelimits]]
+name = "RL_ADMIN_SIGNUP"
+namespace_id = "4102"
+simple = { limit = 5, period = 60 }
+
+[[ratelimits]]
+name = "RL_ADMIN_WRITE"
+namespace_id = "4103"
+simple = { limit = 60, period = 60 }
+
+[[ratelimits]]
+name = "RL_UPLOAD"
+namespace_id = "4104"
+simple = { limit = 30, period = 60 }
+
+[[ratelimits]]
+name = "RL_THUMB_USER"
+namespace_id = "4105"
+simple = { limit = 10, period = 60 }
+
+[[ratelimits]]
+name = "RL_THUMB_PRODUCT"
+namespace_id = "4106"
+simple = { limit = 2, period = 60 }
+
+[[ratelimits]]
+name = "RL_PUBLIC_ASSETS"
+namespace_id = "4107"
+simple = { limit = 300, period = 60 }
+
+[[ratelimits]]
+name = "RL_DOWNLOAD"
+namespace_id = "4108"
+simple = { limit = 10, period = 60 }
+
+[[ratelimits]]
+name = "RL_CHECKOUT"
+namespace_id = "4109"
+simple = { limit = 10, period = 60 }
+
+[[ratelimits]]
+name = "RL_CHECKOUT_VERIFY"
+namespace_id = "4110"
+simple = { limit = 20, period = 60 }
+
+[[ratelimits]]
+name = "RL_ACCOUNT"
+namespace_id = "4111"
+simple = { limit = 10, period = 60 }
+
+[[ratelimits]]
+name = "RL_WEBHOOK"
+namespace_id = "4112"
+simple = { limit = 600, period = 60 }

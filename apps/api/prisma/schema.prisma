@@ -89,6 +89,14 @@ enum InteriorCategory {
   BEDROOM
 }
 
+/// Lifecycle of generated image derivatives (elevation thumbnail, preview card/hero).
+enum DerivativeStatus {
+  NONE
+  PENDING
+  READY
+  FAILED
+}
+
 enum OrderStatus {
   PENDING
   PAID
@@ -133,6 +141,7 @@ model FloorPlan {
   floorPlanKey     String?
   elevationKey     String?
   elevationThumbKey String?
+  thumbnailStatus  DerivativeStatus @default(NONE)
 
   @@map("floor_plan")
 }
@@ -146,6 +155,10 @@ model InteriorPlan {
 
   previewKey        String?
   workingDrawingKey String?
+  // Versioned (uuid) keys of the resized storefront derivatives.
+  previewCardKey    String?
+  previewHeroKey    String?
+  thumbnailStatus   DerivativeStatus @default(NONE)
 
   @@map("interior_plan")
 }

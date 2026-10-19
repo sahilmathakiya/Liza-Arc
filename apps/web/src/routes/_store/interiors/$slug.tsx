@@ -48,7 +48,7 @@ function InteriorDetailPage() {
           <div className="overflow-hidden rounded-lg border border-line bg-surface-muted">
             {interiorPlan.hasPreview ? (
               <img
-                src={interiorPreviewUrl(product.id, 'hero')}
+                src={interiorPreviewUrl(product.id, 'hero', interiorPlan.previewVersion)}
                 alt={`Preview of ${product.name}`}
                 decoding="async"
                 fetchPriority="high"

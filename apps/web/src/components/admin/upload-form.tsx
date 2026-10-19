@@ -10,8 +10,10 @@ import {
   ASSET_KIND_LABELS,
   INTERIOR_CATEGORY_LABELS,
   createProduct,
+  describeUploadProgress,
   rupeesToCents,
   uploadAsset,
+  validateUploadFile,
 } from '#/lib/products'
 
 const FLOOR_PLAN_FILES: { kind: AssetKind; accept: string; image: boolean }[] = [
@@ -101,6 +103,7 @@ export function UploadForm() {
   })
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [progressText, setProgressText] = useState<string | null>(null)
 
   const area = useMemo(() => {
     const l = Number(length)
@@ -122,6 +125,16 @@ export function UploadForm() {
     event.preventDefault()
     if (!allFilesSelected || submitting) return
     setError(null)
+    // Reject bad files before creating the product, so we never leave a
+    // half-created product behind because of an oversized/wrong file.
+    for (const spec of assetSpecs) {
+      const file = files[spec.kind]
+      const invalid = file ? validateUploadFile(spec.kind, file) : null
+      if (invalid) {
+        setError(invalid)
+        return
+      }
+    }
     setSubmitting(true)
     const form = event.currentTarget
     const formData = new FormData(form)
@@ -162,15 +175,24 @@ export function UploadForm() {
     try {
       const { product } = await createProduct(payload)
       try {
+        // Sequential on purpose: one upload in flight per admin keeps load flat.
         for (const spec of assetSpecs) {
           const file = files[spec.kind]
-          if (file) await uploadAsset(product.id, spec.kind, file)
+          if (!file) continue
+          await uploadAsset(product.id, spec.kind, file, {
+            onProgress: (progress) => {
+              const text = describeUploadProgress(progress)
+              setProgressText(text ? `${ASSET_KIND_LABELS[spec.kind]}: ${text}` : null)
+            },
+          })
         }
+        setProgressText(null)
         navigate({ to: '/admin/products' })
       } catch (e) {
         setError(
           `${e instanceof Error ? e.message : 'Upload failed'} — the product "${product.name}" was created; retry the missing uploads from the products page.`,
         )
+        setProgressText(null)
         setSubmitting(false)
       }
     } catch (e) {
@@ -348,7 +370,7 @@ export function UploadForm() {
 
       <FormError message={error} />
       <Button type="submit" size="lg" disabled={!allFilesSelected || submitting} className="w-full">
-        {submitting ? 'Creating product & uploading assets…' : 'Submit product'}
+        {submitting ? (progressText ?? 'Creating product…') : 'Submit product'}
       </Button>
     </form>
   )

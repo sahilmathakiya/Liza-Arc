@@ -61,6 +61,7 @@ export function ProductList({ products }: { products: Product[] }) {
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
+  const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
 
   async function togglePublished(product: Product) {
     setBusyId(product.id)
@@ -75,18 +76,29 @@ export function ProductList({ products }: { products: Product[] }) {
     }
   }
 
+  // Only one regeneration may run at a time across the whole list: each one
+  // is a Cloudflare Images job, and bursts would just hit the rate limit.
   async function handleRegenerateThumbnail(product: Product) {
-    setBusyId(product.id)
+    if (regeneratingId) return
+    setRegeneratingId(product.id)
     setError(null)
     setNotice(null)
     try {
-      await regenerateThumbnail(product.id)
-      setNotice(`Thumbnail regenerated for "${product.name}".`)
+      await regenerateThumbnail(product.id, (seconds) =>
+        setNotice(`Server busy, retrying "${product.name}" in ${seconds}s…`),
+      )
+      setNotice(
+        product.type === 'FLOOR_PLAN'
+          ? `Thumbnail regenerated for "${product.name}".`
+          : `Preview sizes regenerated for "${product.name}".`,
+      )
       await router.invalidate()
     } catch (e) {
+      setNotice(null)
       setError(e instanceof Error ? e.message : 'Something went wrong')
+      await router.invalidate()
     } finally {
-      setBusyId(null)
+      setRegeneratingId(null)
     }
   }
 
@@ -139,7 +151,9 @@ export function ProductList({ products }: { products: Product[] }) {
             {products.map((product) => {
               const floorPlan = product.floorPlan
               const interiorPlan = product.interiorPlan
-              const busy = busyId === product.id
+              const busy = busyId === product.id || regeneratingId === product.id
+              const derivativeStatus = floorPlan?.thumbnailStatus ?? interiorPlan?.thumbnailStatus ?? 'NONE'
+              const canRegenerate = Boolean(floorPlan?.elevationKey || interiorPlan?.previewKey)
               return (
                 <tr key={product.id}>
                   <td className="max-w-48 px-4 py-3">
@@ -190,8 +204,8 @@ export function ProductList({ products }: { products: Product[] }) {
                             href: floorPlan.elevationKey ? paidAssetUrl(product.id, 'elevation') : undefined,
                           },
                           {
-                            label: 'Thumb',
-                            present: Boolean(floorPlan.elevationThumbKey),
+                            label: derivativeStatus === 'FAILED' ? 'Thumb failed' : 'Thumb',
+                            present: Boolean(floorPlan.elevationThumbKey) && derivativeStatus !== 'FAILED',
                             href: floorPlan.elevationThumbKey
                               ? floorPlanThumbnailUrl(product.id, floorPlan.elevationThumbKey)
                               : undefined,
@@ -205,6 +219,15 @@ export function ProductList({ products }: { products: Product[] }) {
                             label: 'Preview',
                             present: Boolean(interiorPlan.previewKey),
                             href: interiorPlan.previewKey ? interiorPreviewUrl(product.id) : undefined,
+                          },
+                          {
+                            label:
+                              derivativeStatus === 'FAILED'
+                                ? 'Sizes failed'
+                                : derivativeStatus === 'READY'
+                                  ? 'Sizes'
+                                  : 'Sizes missing',
+                            present: derivativeStatus === 'READY',
                           },
                           {
                             label: 'Drawing',
@@ -233,14 +256,19 @@ export function ProductList({ products }: { products: Product[] }) {
                           Complete upload
                         </Link>
                       )}
-                      {product.type === 'FLOOR_PLAN' && floorPlan?.elevationKey && (
+                      {canRegenerate && (
                         <Button
                           size="sm"
                           variant="secondary"
-                          disabled={busy}
+                          disabled={busy || regeneratingId !== null}
+                          title={regeneratingId && !busy ? 'Another regeneration is in progress' : undefined}
                           onClick={() => handleRegenerateThumbnail(product)}
                         >
-                          Regenerate thumb
+                          {regeneratingId === product.id
+                            ? 'Regenerating…'
+                            : product.type === 'FLOOR_PLAN'
+                              ? 'Regenerate thumb'
+                              : 'Regenerate previews'}
                         </Button>
                       )}
                       <Button size="sm" variant="secondary" disabled={busy} onClick={() => togglePublished(product)}>

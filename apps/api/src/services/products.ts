@@ -1,6 +1,6 @@
 import { isPrismaError, type Prisma } from "../db";
 import type { AssetKind } from "../lib/r2";
-import { interiorPreviewCardKey, interiorPreviewHeroKey } from "../lib/r2";
+import { legacyPreviewDerivativeKeys } from "../lib/r2";
 import { slugify } from "../lib/slug";
 import type { EntitlementType, ProductType } from "../schema/enums";
 import type {
@@ -111,52 +111,112 @@ export async function listAdminProducts(
   return { total, page: opts.page, limit: opts.limit, products };
 }
 
-export async function setAssetKey(
+export type SwapResult = { ok: true; oldKey: string | null } | { ok: false };
+
+/**
+ * Points the product at a newly stored asset using compare-and-set: the row is
+ * only updated if it still holds the key we read at the start of the request.
+ * If another upload won the race, nothing is written and the caller discards
+ * its object, so the DB and R2 can never disagree about which file is current.
+ * Image kinds also flip the derivative status to PENDING atomically.
+ */
+export async function swapAssetKey(
   prisma: Prisma,
   product: ProductWithDetails,
   kind: AssetKind,
   key: string,
-): Promise<string | null> {
+): Promise<SwapResult> {
+  const productId = product.id;
   if (product.type === "FLOOR_PLAN" && product.floorPlan && kind === "floor-plan") {
-    const old = product.floorPlan.floorPlanKey;
-    await prisma.floorPlan.update({ where: { productId: product.id }, data: { floorPlanKey: key } });
-    return old;
+    const oldKey = product.floorPlan.floorPlanKey;
+    const { count } = await prisma.floorPlan.updateMany({
+      where: { productId, floorPlanKey: oldKey },
+      data: { floorPlanKey: key },
+    });
+    return count === 1 ? { ok: true, oldKey } : { ok: false };
   }
   if (product.type === "FLOOR_PLAN" && product.floorPlan && kind === "elevation") {
-    const old = product.floorPlan.elevationKey;
-    await prisma.floorPlan.update({ where: { productId: product.id }, data: { elevationKey: key } });
-    return old;
+    const oldKey = product.floorPlan.elevationKey;
+    const { count } = await prisma.floorPlan.updateMany({
+      where: { productId, elevationKey: oldKey },
+      data: { elevationKey: key, thumbnailStatus: "PENDING" },
+    });
+    return count === 1 ? { ok: true, oldKey } : { ok: false };
   }
   if (product.type === "INTERIOR_PLAN" && product.interiorPlan && kind === "preview") {
-    const old = product.interiorPlan.previewKey;
-    await prisma.interiorPlan.update({ where: { productId: product.id }, data: { previewKey: key } });
-    return old;
+    const oldKey = product.interiorPlan.previewKey;
+    const { count } = await prisma.interiorPlan.updateMany({
+      where: { productId, previewKey: oldKey },
+      data: { previewKey: key, thumbnailStatus: "PENDING" },
+    });
+    return count === 1 ? { ok: true, oldKey } : { ok: false };
   }
   if (product.type === "INTERIOR_PLAN" && product.interiorPlan && kind === "working-drawing") {
-    const old = product.interiorPlan.workingDrawingKey;
-    await prisma.interiorPlan.update({
-      where: { productId: product.id },
+    const oldKey = product.interiorPlan.workingDrawingKey;
+    const { count } = await prisma.interiorPlan.updateMany({
+      where: { productId, workingDrawingKey: oldKey },
       data: { workingDrawingKey: key },
     });
-    return old;
+    return count === 1 ? { ok: true, oldKey } : { ok: false };
   }
   throw new Error(`Asset kind "${kind}" does not match product type "${product.type}"`);
 }
 
-export async function setElevationThumbKey(
+/**
+ * Stores a freshly generated elevation thumbnail, but only if the elevation it
+ * was made from is still current and nobody stored a newer thumbnail meanwhile.
+ */
+export async function commitElevationThumb(
   prisma: Prisma,
-  product: ProductWithDetails,
-  key: string,
-): Promise<string | null> {
-  if (product.type !== "FLOOR_PLAN" || !product.floorPlan) {
-    throw new Error("Elevation thumbnails only apply to floor plan products");
-  }
-  const old = product.floorPlan.elevationThumbKey;
-  await prisma.floorPlan.update({
-    where: { productId: product.id },
-    data: { elevationThumbKey: key },
+  productId: string,
+  sourceKey: string,
+  expectedThumbKey: string | null,
+  thumbKey: string,
+): Promise<boolean> {
+  const { count } = await prisma.floorPlan.updateMany({
+    where: { productId, elevationKey: sourceKey, elevationThumbKey: expectedThumbKey },
+    data: { elevationThumbKey: thumbKey, thumbnailStatus: "READY" },
   });
-  return old;
+  return count === 1;
+}
+
+export async function commitPreviewDerivatives(
+  prisma: Prisma,
+  productId: string,
+  sourceKey: string,
+  expected: { cardKey: string | null; heroKey: string | null },
+  next: { cardKey: string; heroKey: string },
+): Promise<boolean> {
+  const { count } = await prisma.interiorPlan.updateMany({
+    where: {
+      productId,
+      previewKey: sourceKey,
+      previewCardKey: expected.cardKey,
+      previewHeroKey: expected.heroKey,
+    },
+    data: { previewCardKey: next.cardKey, previewHeroKey: next.heroKey, thumbnailStatus: "READY" },
+  });
+  return count === 1;
+}
+
+/** Marks derivative generation as failed, only if the source is still current. */
+export async function markDerivativesFailed(
+  prisma: Prisma,
+  type: ProductType,
+  productId: string,
+  sourceKey: string,
+): Promise<void> {
+  if (type === "FLOOR_PLAN") {
+    await prisma.floorPlan.updateMany({
+      where: { productId, elevationKey: sourceKey },
+      data: { thumbnailStatus: "FAILED" },
+    });
+    return;
+  }
+  await prisma.interiorPlan.updateMany({
+    where: { productId, previewKey: sourceKey },
+    data: { thumbnailStatus: "FAILED" },
+  });
 }
 
 export function collectAssetKeys(product: ProductWithDetails): string[] {
@@ -168,8 +228,9 @@ export function collectAssetKeys(product: ProductWithDetails): string[] {
     floorPlan?.elevationThumbKey,
     interiorPlan?.previewKey,
     interiorPlan?.workingDrawingKey,
-    interiorPlan?.previewKey ? interiorPreviewCardKey(product.id) : undefined,
-    interiorPlan?.previewKey ? interiorPreviewHeroKey(product.id) : undefined,
+    interiorPlan?.previewCardKey,
+    interiorPlan?.previewHeroKey,
+    ...(interiorPlan ? legacyPreviewDerivativeKeys(product.id) : []),
   ].filter((key): key is string => Boolean(key));
 }
 
@@ -250,6 +311,21 @@ export async function listPublicFloorPlans(prisma: Prisma, query: FloorPlanListQ
   return { total, page: query.page, limit: query.limit, products };
 }
 
+/**
+ * Cache-busting token for public preview URLs: changes whenever the original
+ * or its derivatives change. Derived from public (non-paid) keys only.
+ */
+export function previewVersion(plan: {
+  previewKey: string | null;
+  previewCardKey: string | null;
+  previewHeroKey: string | null;
+}): string | null {
+  if (!plan.previewKey) return null;
+  return [plan.previewKey, plan.previewCardKey, plan.previewHeroKey]
+    .map((key) => (key ? key.slice(key.lastIndexOf("/") + 1) : "-"))
+    .join(".");
+}
+
 export async function listPublicInteriorPlans(prisma: Prisma, query: InteriorPlanListQuery) {
   const where = {
     published: true,
@@ -284,6 +360,7 @@ export async function listPublicInteriorPlans(prisma: Prisma, query: InteriorPla
         workingDrawingPriceCents: interiorPlan.workingDrawingPriceCents,
         hasPreview: Boolean(interiorPlan.previewKey),
         hasWorkingDrawing: Boolean(interiorPlan.workingDrawingKey),
+        previewVersion: previewVersion(interiorPlan),
       },
     ];
   });
@@ -357,6 +434,7 @@ export async function getPublicProductBySlug(prisma: Prisma, slug: string, userI
           workingDrawingPriceCents: interiorPlan.workingDrawingPriceCents,
           hasPreview: Boolean(interiorPlan.previewKey),
           hasWorkingDrawing: Boolean(interiorPlan.workingDrawingKey),
+          previewVersion: previewVersion(interiorPlan),
         }
       : null,
   };

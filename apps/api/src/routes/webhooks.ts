@@ -16,7 +16,7 @@ export const webhooksRouter = new Hono<{ Bindings: Env }>();
 webhooksRouter.use("*", bodyLimit({ maxSize: WEBHOOK_MAX_BYTES }));
 
 webhooksRouter.use("*", async (c, next) => {
-  const limited = rateLimit(c, { scope: "razorpay-webhook", max: 600, windowMs: 60_000 });
+  const limited = await rateLimit(c, "RL_WEBHOOK");
   if (limited) return limited;
   await next();
 });

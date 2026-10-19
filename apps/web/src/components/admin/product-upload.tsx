@@ -4,8 +4,21 @@ import { FormError } from '#/components/auth/form-error'
 import { Button } from '#/components/ui/button'
 import { Label, Select } from '#/components/ui/field'
 import { EmptyState } from '#/components/ui/feedback'
-import type { AssetKind, Product } from '#/lib/products'
-import { ASSET_KIND_LABELS, PRODUCT_ASSET_KINDS, uploadAsset } from '#/lib/products'
+import type { AssetKind, DerivativeStatus, Product, UploadProgress } from '#/lib/products'
+import {
+  ASSET_KIND_LABELS,
+  PRODUCT_ASSET_KINDS,
+  describeUploadProgress,
+  uploadAsset,
+  validateUploadFile,
+} from '#/lib/products'
+
+const STATUS_LABELS: Record<DerivativeStatus, string> = {
+  NONE: 'not generated',
+  PENDING: 'generating…',
+  READY: 'ready',
+  FAILED: 'failed: regenerate from the products list',
+}
 
 const KIND_ACCEPT: Record<AssetKind, string> = {
   'floor-plan': '.pdf',
@@ -31,6 +44,7 @@ export function ProductUpload({
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+  const [progress, setProgress] = useState<UploadProgress | null>(null)
 
   const activeKind: AssetKind | null = kind && kinds.includes(kind) ? kind : (kinds[0] ?? null)
 
@@ -42,7 +56,7 @@ export function ProductUpload({
         { kind: 'elevation' as const, label: ASSET_KIND_LABELS.elevation, key: selected.floorPlan.elevationKey },
         {
           kind: 'thumbnail' as const,
-          label: 'Elevation thumbnail',
+          label: `Elevation thumbnail (${STATUS_LABELS[selected.floorPlan.thumbnailStatus]})`,
           key: selected.floorPlan.elevationThumbKey,
         },
       ]
@@ -50,6 +64,11 @@ export function ProductUpload({
     if (selected.type === 'INTERIOR_PLAN' && selected.interiorPlan) {
       return [
         { kind: 'preview' as const, label: ASSET_KIND_LABELS.preview, key: selected.interiorPlan.previewKey },
+        {
+          kind: 'thumbnail' as const,
+          label: `Preview sizes (${STATUS_LABELS[selected.interiorPlan.thumbnailStatus]})`,
+          key: selected.interiorPlan.previewCardKey,
+        },
         {
           kind: 'working-drawing' as const,
           label: ASSET_KIND_LABELS['working-drawing'],
@@ -71,18 +90,25 @@ export function ProductUpload({
       setError('Choose a file to upload')
       return
     }
+    const invalid = validateUploadFile(activeKind, file)
+    if (invalid) {
+      setError(invalid)
+      return
+    }
     startTransition(async () => {
       try {
-        const { key, thumbnailKey } = await uploadAsset(selected.id, activeKind, file)
+        const result = await uploadAsset(selected.id, activeKind, file, { onProgress: setProgress })
         setMessage(
-          activeKind === 'elevation' && !thumbnailKey
-            ? `Uploaded to ${key} — thumbnail generation failed; regenerate it from the products list.`
-            : `Uploaded to ${key}`,
+          result.thumbnailStatus === 'FAILED'
+            ? `Uploaded to ${result.key}. Preview generation failed (${result.thumbnailError ?? 'unknown error'}); regenerate it from the products list.`
+            : `Uploaded to ${result.key}`,
         )
         if (fileInput) fileInput.value = ''
         onUploaded()
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Something went wrong')
+      } finally {
+        setProgress(null)
       }
     })
   }
@@ -166,8 +192,16 @@ export function ProductUpload({
             <p className="rounded-md border border-line bg-surface-muted px-3 py-2 text-sm text-ink">{message}</p>
           )}
           <FormError message={error} />
+          {progress?.phase === 'uploading' && (
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-muted" aria-hidden>
+              <div
+                className="h-full bg-brand transition-[width]"
+                style={{ width: `${Math.round((progress.fraction ?? 0) * 100)}%` }}
+              />
+            </div>
+          )}
           <Button type="submit" disabled={pending || !selected || !activeKind}>
-            {pending ? 'Uploading…' : 'Upload'}
+            {pending ? (describeUploadProgress(progress) ?? 'Uploading…') : 'Upload'}
           </Button>
         </form>
       )}

@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
-import { createAuth } from "../auth";
+import { getAuth } from "../auth";
 import { JSON_MAX_BYTES } from "../lib/body-limits";
 import { rateLimit } from "../lib/rate-limit";
 import { zodErrorMessage } from "../lib/zod";
@@ -27,13 +27,13 @@ function errorMessage(error: unknown): { status: number; message: string } {
 }
 
 accountRouter.post("/password", async (c) => {
-  const limited = rateLimit(c, { scope: "account-password", max: 10, windowMs: 60_000 });
+  const limited = await rateLimit(c, "RL_ACCOUNT");
   if (limited) return limited;
 
   const parsed = passwordSchema.safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) return c.json({ error: zodErrorMessage(parsed.error) }, 400);
 
-  const auth = createAuth(c.env);
+  const auth = getAuth(c);
   try {
     const accounts = await auth.api.listUserAccounts({ headers: c.req.raw.headers });
     const hasPassword = accounts.some((account) => account.providerId === "credential");

@@ -19,3 +19,11 @@ RAZORPAY_KEY_SECRET="secret-xxxxxxxxxxxxxxxx"
 # Generated in Dashboard > Settings > Webhooks when you add the webhook URL.
 # Safe to leave empty in local dev.
 RAZORPAY_WEBHOOK_SECRET=""
+# Direct-to-R2 uploads (presigned PUT URLs). Create an R2 API token with
+# "Object Read & Write" on liza-arch-storage + testing-bucket.
+# In production set these with `wrangler secret put <NAME>`.
+CF_ACCOUNT_ID="your-cloudflare-account-id"
+R2_ACCESS_KEY_ID="xxx"
+R2_SECRET_ACCESS_KEY="xxx"
+# Must match the bucket the BUCKET binding uses in dev (preview_bucket_name).
+R2_BUCKET_NAME="testing-bucket"

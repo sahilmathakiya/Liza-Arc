@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { createAuth } from "../auth";
-import { createPrisma } from "../db";
+import { getSession as getSessionFor } from "../auth";
+import { getPrisma } from "../db";
 import { zodErrorMessage } from "../lib/zod";
 import { floorPlanListQuerySchema, interiorPlanListQuerySchema } from "../schema/product";
 import { getPublicProductBySlug, listPublicFloorPlans, listPublicInteriorPlans } from "../services/products";
@@ -8,7 +8,7 @@ import { getPublicProductBySlug, listPublicFloorPlans, listPublicInteriorPlans }
 export const publicProductsRouter = new Hono<{ Bindings: Env }>();
 
 publicProductsRouter.get("/", async (c) => {
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const type = c.req.query("type");
 
   if (type === "FLOOR_PLAN") {
@@ -25,10 +25,9 @@ publicProductsRouter.get("/", async (c) => {
 });
 
 publicProductsRouter.get("/:slug", async (c) => {
-  const session = await createAuth(c.env)
-    .api.getSession({ headers: c.req.raw.headers })
+  const session = await getSessionFor(c)
     .catch(() => null);
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const product = await getPublicProductBySlug(prisma, c.req.param("slug"), session?.user.id);
   if (!product) return c.json({ error: "Product not found" }, 404);
   return c.json({ product });

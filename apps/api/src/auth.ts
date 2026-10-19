@@ -1,9 +1,9 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { createPrisma } from "./db";
+import { createPrisma, getPrisma } from "./db";
+import type { Prisma } from "./db";
 
-export function createAuth(env: Env) {
-  const prisma = createPrisma(env.DATABASE_URL);
+export function createAuth(env: Env, prisma: Prisma = createPrisma(env.DATABASE_URL)) {
   const crossSiteCookies = env.BETTER_AUTH_URL.startsWith("https://");
 
   return betterAuth({
@@ -40,3 +40,19 @@ export function createAuth(env: Env) {
 export type Auth = ReturnType<typeof createAuth>;
 
 export type Session = NonNullable<Awaited<ReturnType<Auth["api"]["getSession"]>>>;
+
+const authByRequest = new WeakMap<Request, Auth>();
+
+/** One better-auth instance per request, sharing the request's Prisma client. */
+export function getAuth(c: { env: Env; req: { raw: Request } }): Auth {
+  let auth = authByRequest.get(c.req.raw);
+  if (!auth) {
+    auth = createAuth(c.env, getPrisma(c));
+    authByRequest.set(c.req.raw, auth);
+  }
+  return auth;
+}
+
+export function getSession(c: { env: Env; req: { raw: Request } }) {
+  return getAuth(c).api.getSession({ headers: c.req.raw.headers });
+}

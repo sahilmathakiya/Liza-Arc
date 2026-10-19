@@ -1,27 +1,19 @@
 import { Hono } from "hono";
 import type { Context } from "hono";
-import { createAuth } from "../auth";
+import { getSession } from "../auth";
 import type { Session } from "../auth";
-import { createPrisma } from "../db";
+import { getPrisma } from "../db";
+import type { Prisma } from "../db";
 import { createZip } from "../lib/archive";
 import { detectFileKind } from "../lib/file-type";
 import type { FileKind } from "../lib/file-type";
+import { logError } from "../lib/log";
 import { rateLimit } from "../lib/rate-limit";
-import {
-  downloadResponseHeaders,
-  interiorPreviewCardKey,
-  interiorPreviewHeroKey,
-  putAsset,
-} from "../lib/r2";
+import { downloadResponseHeaders } from "../lib/r2";
 import { isAdminRole } from "../roles";
 import type { EntitlementType } from "../schema/enums";
 import { hasEntitlement } from "../services/entitlements";
-import { getDeliverableAsset, type PaidAssetKind } from "../services/products";
-import {
-  INTERIOR_PREVIEW_CARD_MAX_DIMENSION,
-  INTERIOR_PREVIEW_HERO_MAX_DIMENSION,
-  createResizedWebp,
-} from "../services/thumbnail";
+import { getDeliverableAsset, previewVersion, type PaidAssetKind } from "../services/products";
 import { WatermarkError, createWatermarkedDownload } from "../services/watermark";
 
 export const assetsRouter = new Hono<{ Bindings: Env }>();
@@ -33,7 +25,6 @@ const EXPIRED_ACCESS_MESSAGE =
   "Your access to this item has expired. Purchase it again to download.";
 
 type AssetsContext = Context<{ Bindings: Env }>;
-type Prisma = ReturnType<typeof createPrisma>;
 type Identity = { name: string; email: string };
 
 const EXTENSION_BY_KIND: Record<FileKind, string> = {
@@ -54,47 +45,30 @@ function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
   return bytes.slice().buffer;
 }
 
-type PreviewSize = "card" | "hero";
-
-function previewDerivativeKey(productId: string, size: PreviewSize): string {
-  return size === "card" ? interiorPreviewCardKey(productId) : interiorPreviewHeroKey(productId);
-}
-
 /**
- * Returns the resized storefront preview derivative, generating and storing it
- * on first request so products uploaded before derivatives existed still get
- * optimized. Any failure is non-fatal: the caller falls back to the original.
+ * Streams a public storefront image straight from R2 (no processing, no
+ * buffering). Versioned URLs (matching ?v=) are cached for a year; anything
+ * else gets a short TTL. Conditional requests are answered with 304 by R2.
  */
-async function getOrCreatePreviewDerivative(
+async function servePublicImage(
   c: AssetsContext,
-  productId: string,
-  sourceKey: string,
-  size: PreviewSize,
-): Promise<R2ObjectBody | null> {
-  const derivativeKey = previewDerivativeKey(productId, size);
-  const existing = await c.env.BUCKET.get(derivativeKey);
-  if (existing) return existing;
-
-  const sourceObject = await c.env.BUCKET.get(sourceKey);
-  if (!sourceObject) return null;
-
-  try {
-    const bytes = new Uint8Array(await sourceObject.arrayBuffer());
-    const maxDimension =
-      size === "card"
-        ? INTERIOR_PREVIEW_CARD_MAX_DIMENSION
-        : INTERIOR_PREVIEW_HERO_MAX_DIMENSION;
-    const derivative = createResizedWebp(bytes, detectFileKind(bytes), maxDimension);
-    await putAsset(c.env.BUCKET, derivativeKey, derivative.bytes, derivative.contentType);
-    return await c.env.BUCKET.get(derivativeKey);
-  } catch (error) {
-    console.error("Failed to generate interior preview derivative on demand", {
-      productId,
-      size,
-      message: error instanceof Error ? error.message : "unknown error",
-    });
-    return null;
+  key: string,
+  versioned: boolean,
+  fallbackContentType: string,
+): Promise<Response> {
+  const object = await c.env.BUCKET.get(key, { onlyIf: c.req.raw.headers });
+  if (!object) return c.json({ error: "Image not found" }, 404);
+  const cacheControl = versioned ? "public, max-age=31536000, immutable" : "public, max-age=300";
+  if (!("body" in object)) {
+    return c.body(null, 304, { etag: object.httpEtag, "cache-control": cacheControl });
   }
+  return c.body(object.body, 200, {
+    "content-type": object.httpMetadata?.contentType ?? fallbackContentType,
+    "content-length": String(object.size),
+    "cache-control": cacheControl,
+    etag: object.httpEtag,
+    "x-content-type-options": "nosniff",
+  });
 }
 
 function watermarkFailure(
@@ -106,11 +80,7 @@ function watermarkFailure(
   if (error instanceof WatermarkError && error.status !== 500) {
     return c.json({ error: error.message }, error.status);
   }
-  console.error("Failed to prepare watermarked download", {
-    productId,
-    kind,
-    message: error instanceof Error ? error.message : "unknown error",
-  });
+  logError(c, "Failed to prepare watermarked download", error, { productId, kind });
   return c.json({ error: "Unable to prepare the watermarked file." }, 500);
 }
 
@@ -134,49 +104,44 @@ async function denyIfNotEntitled(
   return c.json({ error: previous ? EXPIRED_ACCESS_MESSAGE : "You do not own this item" }, 403);
 }
 
+// Public storefront images. These only ever stream pre-generated objects:
+// image processing happens at upload/regenerate time (admin-only, rate
+// limited), never on a visitor's request.
 assetsRouter.get("/interior/:id/preview", async (c) => {
+  const limited = await rateLimit(c, "RL_PUBLIC_ASSETS");
+  if (limited) return limited;
+
   const productId = c.req.param("id");
-  const prisma = createPrisma(c.env.DATABASE_URL);
-  const product = await prisma.product.findFirst({
+  const product = await getPrisma(c).product.findFirst({
     where: { id: productId, published: true, type: "INTERIOR_PLAN" },
-    select: { interiorPlan: { select: { previewKey: true } } },
+    select: {
+      interiorPlan: { select: { previewKey: true, previewCardKey: true, previewHeroKey: true } },
+    },
   });
-  const key = product?.interiorPlan?.previewKey;
-  if (!key) return c.json({ error: "Preview not found" }, 404);
+  const plan = product?.interiorPlan;
+  if (!plan?.previewKey) return c.json({ error: "Preview not found" }, 404);
 
+  // Derivatives missing (legacy product or generation failed): serve the
+  // original rather than generating on demand.
   const size = c.req.query("size");
-  // Prefer the resized derivative; fall back to the original upload when the
-  // derivative cannot be produced (e.g. unreadable source image).
-  const derivative =
-    size === "card" || size === "hero"
-      ? await getOrCreatePreviewDerivative(c, productId, key, size)
-      : null;
-
-  const object = derivative ?? (await c.env.BUCKET.get(key));
-  if (!object) return c.json({ error: "Preview not found" }, 404);
-  return c.body(object.body, 200, {
-    "content-type": object.httpMetadata?.contentType ?? "application/octet-stream",
-    "cache-control": "public, max-age=86400",
-    etag: object.etag,
-  });
+  const key =
+    (size === "card" ? plan.previewCardKey : size === "hero" ? plan.previewHeroKey : null) ??
+    plan.previewKey;
+  const versioned = c.req.query("v") === previewVersion(plan);
+  return servePublicImage(c, key, versioned, "application/octet-stream");
 });
 
 assetsRouter.get("/floor-plan/:id/thumbnail", async (c) => {
-  const prisma = createPrisma(c.env.DATABASE_URL);
-  const product = await prisma.product.findFirst({
+  const limited = await rateLimit(c, "RL_PUBLIC_ASSETS");
+  if (limited) return limited;
+
+  const product = await getPrisma(c).product.findFirst({
     where: { id: c.req.param("id"), published: true, type: "FLOOR_PLAN" },
     select: { floorPlan: { select: { elevationThumbKey: true } } },
   });
   const key = product?.floorPlan?.elevationThumbKey;
   if (!key) return c.json({ error: "Thumbnail not found" }, 404);
-
-  const object = await c.env.BUCKET.get(key);
-  if (!object) return c.json({ error: "Thumbnail not found" }, 404);
-  return c.body(object.body, 200, {
-    "content-type": object.httpMetadata?.contentType ?? "image/jpeg",
-    "cache-control": "public, max-age=86400",
-    etag: object.etag,
-  });
+  return servePublicImage(c, key, c.req.query("v") === key, "image/jpeg");
 });
 
 assetsRouter.get("/products/:id/:kind", async (c) => {
@@ -184,19 +149,14 @@ assetsRouter.get("/products/:id/:kind", async (c) => {
   const isBundle = kind === BUNDLE_KIND;
   if (!isBundle && !PAID_KINDS.includes(kind)) return c.json({ error: "Invalid asset kind" }, 400);
 
-  const session = await createAuth(c.env).api.getSession({ headers: c.req.raw.headers });
+  const session = await getSession(c);
   if (!session) return c.json({ error: "Unauthorized" }, 401);
 
-  const limited = rateLimit(c, {
-    scope: "asset-download",
-    max: 30,
-    windowMs: 60_000,
-    key: session.user.id,
-  });
+  const limited = await rateLimit(c, "RL_DOWNLOAD", session.user.id);
   if (limited) return limited;
 
   const productId = c.req.param("id");
-  const prisma = createPrisma(c.env.DATABASE_URL);
+  const prisma = getPrisma(c);
   const identity: Identity = { name: session.user.name, email: session.user.email };
 
   if (isBundle) {
